@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Panel de prototipo — Kuchitril" description="Panel local para probar la selección y edición del portafolio de Kuchitril." page="admin">
+  <main id="contenido" class="inner-page admin-page">
+    <section class="admin-hero section-shell">
+      <div class="section-index"><span>PANEL / PROTOTIPO</span><span>GESTIÓN DE PORTAFOLIO</span></div>
+      <div class="admin-hero__layout"><div><span class="eyebrow">ZONA DE EDICIÓN</span><h1>El portafolio<br /><em>a tu manera.</em></h1></div><p>Agrega, edita, ordena y elige hasta cinco proyectos para la portada. Esta demo guarda los cambios <strong>solo en este navegador</strong>; todavía no tiene cuenta de administrador ni base de datos.</p></div>
+    </section>
+    <section class="admin-workspace section-shell" aria-labelledby="admin-title">
+      <div class="admin-toolbar"><div><h2 id="admin-title">Tus proyectos</h2><p><span data-total-count>0</span> proyectos · <span data-featured-count>0</span> destacados en inicio</p></div><div class="admin-toolbar__actions"><a class="admin-preview" href="/" target="_blank" rel="noopener noreferrer">Ver inicio ↗</a><button type="button" class="admin-add" data-add-project>+ Nuevo proyecto</button></div></div>
+      <div class="admin-projects" data-admin-list></div>
+      <div class="admin-bottom"><p>Cuando conectemos Supabase, estos cambios se sincronizarán entre dispositivos y el panel tendrá inicio de sesión.</p><button type="button" data-reset-projects>Restaurar ejemplos</button></div>
+    </section>
+  </main>
+
+  <dialog class="editor-dialog" id="project-editor" aria-labelledby="editor-title">
+    <form method="dialog" class="editor-dialog__form" id="project-form">
+      <div class="editor-dialog__head"><div><span class="eyebrow">EDITOR DE PROYECTOS</span><h2 id="editor-title">Nuevo proyecto</h2></div><button type="button" class="editor-dialog__close" data-close-editor aria-label="Cerrar editor">×</button></div>
+      <input type="hidden" name="id" />
+      <label>Título del proyecto<input name="title" type="text" maxlength="70" placeholder="Ej. Identidad para una nueva marca" required /></label>
+      <div class="editor-dialog__columns"><label>Servicio<select name="service" required><option>Branding</option><option>Marketing digital</option><option>Desarrollo web</option><option>Audiovisual</option></select></label><label>Color de la lámina<select name="tone"><option value="mint">Verde vivo</option><option value="orange">Naranja</option><option value="cream">Crema</option><option value="teal">Turquesa</option><option value="dark">Verde oscuro</option></select></label></div>
+      <label>Descripción<textarea name="description" maxlength="220" rows="3" placeholder="Cuenta brevemente qué se hizo y por qué" required></textarea></label>
+      <label>Imagen de portada <span class="field-note">Opcional; se comprime y guarda en este navegador</span><input name="file" type="file" accept="image/png,image/jpeg,image/webp" /></label>
+      <label>O usa una URL de imagen<input name="image" type="url" placeholder="https://..." /></label>
+      <label class="editor-dialog__checkbox"><input name="demo" type="checkbox" checked /><span>Mostrar etiqueta “Vista de muestra”</span></label>
+      <label class="editor-dialog__checkbox"><input name="featured" type="checkbox" /><span>Destacar en el inicio (máximo cinco)</span></label>
+      <p class="editor-dialog__error" data-form-error role="alert" hidden></p>
+      <div class="editor-dialog__foot"><button type="button" class="admin-cancel" data-close-editor>Cancelar</button><button type="submit" class="admin-save">Guardar proyecto</button></div>
+    </form>
+  </dialog>
+  <div class="admin-toast" data-admin-toast role="status" aria-live="polite"></div>
+  <script>
+    import { initAdmin } from '../scripts/admin';
+    initAdmin();
+  </script>
+</BaseLayout>

@@ -1,0 +1,16 @@
+---
+import type { Project } from '../data/projects';
+type Props = { project: Project; index: number };
+const { project, index } = Astro.props;
+---
+<article class={`project-card tone-${project.tone}`} data-project-id={project.id} style={`--card-index: ${index}`}>
+  <div class="project-card__media">
+    {project.image ? <img src={project.image} alt={project.demo ? 'Imagen referencial del prototipo' : project.title} loading="lazy" decoding="async" /> : <span class="project-card__glyph" aria-hidden="true">{project.service === 'Desarrollo web' ? '</>' : '✳'}</span>}
+    <span class="project-card__number">{String(index + 1).padStart(2, '0')}</span>
+  </div>
+  <div class="project-card__content">
+    <div class="project-card__meta"><span>{project.service}</span><span>{project.demo ? 'Vista de muestra' : 'Proyecto'}</span></div>
+    <h3>{project.title}</h3>
+    <p>{project.description}</p>
+  </div>
+</article>

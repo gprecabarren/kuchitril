@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { starterProjects, services } from '../data/projects';
+---
+<BaseLayout title="Portafolio — Kuchitril" description="Explora el portafolio de Kuchitril: branding, audiovisual, marketing digital y desarrollo web." page="portfolio">
+  <main id="contenido" class="inner-page portfolio-page">
+    <section class="page-hero section-shell">
+      <div class="section-index"><span>EL TRABAJO / 001</span><span>DEL CONCEPTO A LA CALLE</span></div>
+      <div class="page-hero__grid"><div><span class="eyebrow">PORTAFOLIO</span><h1>Ideas que<br /><em>toman forma.</em></h1></div><p>Un espacio para explorar marcas, sitios y contenidos construidos con intención. Esta primera versión muestra ejemplos editables hasta recibir los casos definitivos.</p></div>
+      <div class="page-hero__deco" aria-hidden="true">✳</div>
+    </section>
+    <section class="portfolio-catalog section-shell" aria-labelledby="catalog-title">
+      <div class="catalog-heading"><h2 id="catalog-title">Explora por disciplina.</h2><div class="filter-list" role="group" aria-label="Filtrar proyectos"><button type="button" class="filter-button is-active" data-filter="Todos" aria-pressed="true">Todos</button>{services.map((service) => <button type="button" class="filter-button" data-filter={service} aria-pressed="false">{service}</button>)}</div></div>
+      <p class="prototype-note">Los proyectos que ves aquí son demostrativos. Las marcas, resultados y testimonios reales se añadirán cuando estén aprobados.</p>
+      <div class="project-grid project-grid--catalog" data-all-projects>{starterProjects.map((project, index) => <ProjectCard project={project} index={index} />)}</div>
+    </section>
+    <section class="portfolio-cta section-shell"><span class="eyebrow">HAGAMOS ALGO JUNTOS</span><h2>Tu marca podría<br /><em>ser la próxima.</em></h2><a class="pill-link pill-link--dark" href="https://wa.me/56991950914?text=Hola%20Kuchitril%2C%20quiero%20conversar%20sobre%20un%20proyecto" target="_blank" rel="noopener noreferrer">Conversemos por WhatsApp <span aria-hidden="true">↗</span></a></section>
+  </main>
+  <script>
+    import { renderProjectGrid } from '../lib/portfolio';
+    const grid = document.querySelector<HTMLElement>('[data-all-projects]');
+    if (grid) {
+      renderProjectGrid(grid);
+      const filterButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+      filterButtons.forEach((button) => button.addEventListener('click', () => {
+        filterButtons.forEach((item) => {
+          const active = item === button;
+          item.classList.toggle('is-active', active);
+          item.setAttribute('aria-pressed', String(active));
+        });
+        const filter = button.dataset.filter;
+        grid.querySelectorAll<HTMLElement>('.project-card').forEach((card) => {
+          const category = card.querySelector('.project-card__meta span')?.textContent;
+          card.hidden = filter !== 'Todos' && category !== filter;
+        });
+      }));
+    }
+  </script>
+</BaseLayout>
