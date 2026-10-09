@@ -27,12 +27,15 @@ Vercel compila la rama main del repositorio gprecabarren/kuchitril en el proyect
 src/config/site.ts centraliza dominio, contacto, verificación e identificadores públicos de Google. Cada página tiene título, descripción, canonical, etiquetas sociales y datos estructurados. public/sitemap.xml contiene solo las páginas vigentes. Actualizar lastmod al modificar su contenido.
 
 - Search Console: propiedad de dominio kuchitril.cl, verificada por TXT de DNS en Vercel. Mantener el registro.
+- Casa matriz en Concepción, Chile. Santiago es zona de servicio; no publicar una dirección de oficina sin confirmación.
+- Portada y sitemap accesibles para Google en pruebas en tiempo real. Indexación de la portada solicitada el 9 de octubre de 2026. El informe del sitemap depende del procesamiento de Google.
 - Cuenta Google: kuchitril.site@gmail.com.
 - Tag Manager: GTM-NJL4JHHC, cuenta 6381597466, contenedor 266636143.
 - Analytics: cuenta 411379225, propiedad 558191898, flujo 16097204618, medición G-JTKCZRQXYR.
 - Modo de consentimiento básico: las etiquetas no se cargan hasta aceptar analítica. Publicidad denegada. Preferencias modificables en el pie de página; revocar borra cookies accesibles y recarga.
 - Preferencia local válida 180 días. Cookie GA configurada 180 días. Retención de usuarios/eventos de GA: dos meses.
 - Evento contact_whatsapp: mide un clic de intención, no una conversación ni un cliente confirmado. No se transmiten datos de mensajes o contactos.
+- Tag Manager: versión 2 publicada con Google Tag y evento contact_whatsapp; la visita y el evento clave fueron recibidos en Analytics en tiempo real. Sin valor monetario predeterminado.
 - No se deben agregar etiquetas publicitarias ni nuevos servicios de medición sin actualizar las políticas y el consentimiento.
 
 ## Material pendiente
