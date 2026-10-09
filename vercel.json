@@ -5,7 +5,7 @@
     { "source": "/admin/:path*", "destination": "/", "permanent": true }
   ],
   "headers": [
-    { "source": "/equipo/desarrollo/:path*", "headers": [
+    { "source": "/equipo/(.*)", "headers": [
       { "key": "X-Robots-Tag", "value": "noindex, nofollow, nosnippet" }
     ] },
     { "source": "/(.*)", "headers": [
