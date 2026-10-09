@@ -1,32 +1,42 @@
-# Kuchitril — primer prototipo
+# Kuchitril
 
-Landing y portafolio para la agencia Kuchitril. Usa Astro, TypeScript, CSS, GSAP y Manrope sobre Node.js 22. Los colores, el gato con bandera y la foto del fundador provienen del material entregado; las imágenes web están optimizadas en `public/assets/`.
+Sitio estático de la agencia con Astro, TypeScript, GSAP y CSS. Tipografía general DM Sans; Bebas Neue provisional en el nombre de marca, hasta recibir Stapen con licencia web. Node.js 22 en producción.
 
-## Ejecutar
+## Desarrollo y verificación
 
 ```powershell
-npm install
+npm ci
 npm run dev
-```
-
-Abrir [http://127.0.0.1:4321/](http://127.0.0.1:4321/). El portafolio está en `/portafolio/` y el panel de prueba en `/admin/`.
-
-## Qué incluye
-
-- Intro animada del gato con bandera, animaciones al desplazarse y adaptación para pantallas pequeñas. La opción de movimiento reducido omite la intro y los efectos.
-- Presentación de la agencia, fundador, cuatro servicios, portafolio, espacio para testimonios y contacto por WhatsApp.
-- Panel de prueba para crear, editar, eliminar, ordenar y destacar hasta cinco proyectos. Los cambios se guardan en `localStorage`, únicamente en el navegador donde se hicieron. Se pueden restaurar los ejemplos desde el mismo panel.
-- Los proyectos y testimonios iniciales están marcados como muestras; no representan marcas ni opiniones verificadas.
-
-## Material pendiente y panel
-
-Reemplazar proyectos, nombres de marcas y testimonios por material autorizado. Para que el panel funcione en varios dispositivos hay que conectar Supabase, habilitar autenticación, permisos y almacenamiento de imágenes. Hasta entonces, `/admin/` es solo un prototipo: los cambios se guardan en cada navegador y no afectan el sitio de otros visitantes.
-
-## Verificación
-
-```powershell
 npm run check
 npm run build
 ```
 
-La compilación genera el sitio estático en `dist/`. En Vercel, configurar el framework Astro, Node.js 22.x, directorio raíz `./`, comando de instalación `npm ci`, comando de compilación `npm run build` y directorio de salida `dist`. La rama de producción es `main`.
+Vercel compila la rama main del repositorio gprecabarren/kuchitril en el proyecto Kuchitril del equipo Padi (padi9). Framework Astro, instalación npm ci, build npm run build, salida dist, dominio canónico https://kuchitril.cl. No se requiere base de datos ni variables secretas.
+
+## Contenido
+
+- Intro del gato y animaciones al desplazarse. Respeta movimiento reducido.
+- Agencia, biografía de Diego Padilla Dalia, equipo y cuatro servicios.
+- Espacios explícitos para video, retratos en blanco y negro, cuatro trabajos y testimonios.
+- Portafolio externo https://www.behance.net/pesadilla. La ruta anterior /portafolio/ redirige permanentemente a Behance.
+- El panel de demostración fue retirado; /admin/ redirige al inicio.
+- Contacto por WhatsApp. El nombre del integrante de desarrollo se muestra en un documento incrustado con noindex y X-Robots-Tag; no está en el HTML de la landing, los metadatos ni el sitemap.
+
+## SEO y medición
+
+src/config/site.ts centraliza dominio, contacto, verificación e identificadores públicos de Google. Cada página tiene título, descripción, canonical, etiquetas sociales y datos estructurados. public/sitemap.xml contiene solo las páginas vigentes. Actualizar lastmod al modificar su contenido.
+
+- Search Console: propiedad de dominio kuchitril.cl, verificada por TXT de DNS en Vercel. Mantener el registro.
+- Cuenta Google: kuchitril.site@gmail.com.
+- Tag Manager: GTM-NJL4JHHC, cuenta 6381597466, contenedor 266636143.
+- Analytics: cuenta 411379225, propiedad 558191898, flujo 16097204618, medición G-JTKCZRQXYR.
+- Modo de consentimiento básico: las etiquetas no se cargan hasta aceptar analítica. Publicidad denegada. Preferencias modificables en el pie de página; revocar borra cookies accesibles y recarga.
+- Preferencia local válida 180 días. Cookie GA configurada 180 días. Retención de usuarios/eventos de GA: dos meses.
+- Evento contact_whatsapp: mide un clic de intención, no una conversación ni un cliente confirmado. No se transmiten datos de mensajes o contactos.
+- No se deben agregar etiquetas publicitarias ni nuevos servicios de medición sin actualizar las políticas y el consentimiento.
+
+## Material pendiente
+
+Video de July, retratos del equipo, trabajos autorizados, testimonios finales, textos de servicios y archivo Stapen con licencia web. Confirmar identidad jurídica del responsable, RUT y dirección de contacto para completar el aviso legal; no inventar sucursales.
+
+Las políticas describen los servicios implementados. Revisarlas al cambiar las finalidades, proveedores o normativa aplicable.

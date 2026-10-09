@@ -1,0 +1,18 @@
+---
+import { site } from '../config/site';
+---
+<section class="cookie-panel" id="cookie-panel" role="region" aria-label="Preferencias de privacidad" hidden data-gtm={site.gtmId} data-measurement={site.measurementId}>
+  <h2>Tu privacidad, tu decisión.</h2>
+  <p>Usamos almacenamiento necesario para recordar tu elección. Solo si aceptas, Google Analytics nos ayuda a conocer las visitas y los clics de contacto. Sin publicidad ni perfiles personales.</p>
+  <a href="/cookies/">Conocer las cookies</a>
+  <div class="cookie-panel__actions">
+    <button type="button" data-consent="denied">Solo necesarias</button>
+    <button type="button" data-consent="granted">Aceptar analítica</button>
+    <button type="button" id="cookie-close" hidden>Cerrar preferencias</button>
+  </div>
+</section>
+<script>
+  import { initConsent } from '../scripts/consent';
+  initConsent();
+</script>
+

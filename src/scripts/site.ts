@@ -58,16 +58,16 @@ export function initSite(): void {
 
   if (document.querySelector('.hero')) {
     gsap.from('.hero__line', { yPercent: 105, opacity: 0, stagger: 0.11, duration: 0.85, delay: intro ? 1.95 : 0.1, ease: 'power3.out' });
-    gsap.from('.hero__bottom, .hero__kicker', { y: 28, opacity: 0, stagger: 0.15, duration: 0.7, delay: intro ? 2.25 : 0.4, ease: 'power2.out' });
+    gsap.from('.hero__bottom', { y: 28, opacity: 0, duration: 0.7, delay: intro ? 2.25 : 0.4, ease: 'power2.out' });
   }
 
-  document.querySelectorAll<HTMLElement>('.section-index, .services__heading, .portfolio-preview__heading, .voices__heading, .page-hero__grid, .catalog-heading').forEach((element) => {
+  document.querySelectorAll<HTMLElement>('.section-index, .services__heading, .portfolio-preview__heading, .voices__heading, .team__heading').forEach((element) => {
     gsap.from(element, { scrollTrigger: { trigger: element, start: 'top 88%', once: true }, y: 38, opacity: 0, duration: 0.75, ease: 'power2.out' });
   });
   document.querySelectorAll<HTMLElement>('.service-row').forEach((element) => {
     gsap.from(element, { scrollTrigger: { trigger: element, start: 'top 86%', once: true }, y: 55, opacity: 0, duration: 0.75, ease: 'power3.out' });
   });
-  document.querySelectorAll<HTMLElement>('.founder__photo-frame, .founder__copy, .manifesto__layout, .project-card, .contact h2').forEach((element) => {
+  document.querySelectorAll<HTMLElement>('.founder__photo-frame, .founder__copy, .manifesto__layout, .project-card, .team-card, .contact h2').forEach((element) => {
     gsap.from(element, { scrollTrigger: { trigger: element, start: 'top 85%', once: true }, y: 48, opacity: 0, duration: 0.85, ease: 'power3.out' });
   });
   if (document.querySelector('.founder')) {

@@ -1,0 +1,11 @@
+---
+type Props = { kind?: 'star' | 'arrow' | 'down' | 'play' | 'portrait'; class?: string };
+const { kind = 'star', class: className = '' } = Astro.props;
+---
+<svg class={`icon ${className}`} viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+  {kind === 'star' && <path d="M24 1c2 16 7 21 23 23-16 2-21 7-23 23C22 31 17 26 1 24 17 22 22 17 24 1Z" fill="currentColor" />}
+  {kind === 'arrow' && <path d="M10 38 38 10M10 10h28v28" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />}
+  {kind === 'down' && <path d="M24 7v34M10 27l14 14 14-14" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />}
+  {kind === 'play' && <path d="m18 11 22 13-22 13V11Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />}
+  {kind === 'portrait' && <><circle cx="24" cy="17" r="8" stroke="currentColor" stroke-width="1.5" /><path d="M9 41c0-9 6-14 15-14s15 5 15 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></>}
+</svg>
