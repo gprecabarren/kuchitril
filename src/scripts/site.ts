@@ -5,6 +5,100 @@ gsap.registerPlugin(ScrollTrigger);
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+function initVoicesCarousel(): void {
+  document.querySelectorAll<HTMLElement>('[data-voices-carousel]').forEach((carousel) => {
+    const viewport = carousel.querySelector<HTMLElement>('.voices__viewport');
+    const track = carousel.querySelector<HTMLElement>('.voices__track');
+    const pauseButton = carousel.querySelector<HTMLButtonElement>('[data-voices-pause]');
+    if (!viewport || !track || !pauseButton) return;
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let paused = false;
+    let hovered = false;
+    let focused = false;
+    let touching = false;
+    let visible = false;
+    let interactionUntil = 0;
+    let interactionTimer = 0;
+    let frame = 0;
+    let lastFrame = 0;
+    let cycleWidth = 0;
+
+    const measure = () => {
+      const groups = track.querySelectorAll<HTMLElement>('.voices__group');
+      if (groups.length < 2) return;
+      cycleWidth = groups[1].offsetLeft - groups[0].offsetLeft;
+      // A complete extra group keeps the loop seamless even with one testimonial.
+      while (cycleWidth > 0 && track.scrollWidth < viewport.clientWidth + cycleWidth + 2 && track.children.length < 10) {
+        const duplicate = groups[0].cloneNode(true) as HTMLElement;
+        duplicate.setAttribute('aria-hidden', 'true');
+        duplicate.inert = true;
+        track.append(duplicate);
+      }
+    };
+    const canMove = () => !motionPreference.matches && !paused && !hovered && !focused && !touching && visible && !document.hidden && performance.now() >= interactionUntil && cycleWidth > 0 && viewport.scrollWidth > viewport.clientWidth;
+    const tick = (now: number) => {
+      frame = 0;
+      if (!canMove()) return;
+      const elapsed = Math.min(now - lastFrame, 50);
+      lastFrame = now;
+      const next = viewport.scrollLeft + elapsed * 0.026;
+      viewport.scrollLeft = next >= cycleWidth ? next - cycleWidth : next;
+      frame = requestAnimationFrame(tick);
+    };
+    const sync = () => {
+      pauseButton.disabled = motionPreference.matches;
+      pauseButton.setAttribute('aria-pressed', String(paused || motionPreference.matches));
+      pauseButton.textContent = motionPreference.matches ? 'Movimiento reducido' : paused ? 'Reanudar movimiento' : 'Pausar movimiento';
+      if (canMove() && !frame) {
+        lastFrame = performance.now();
+        frame = requestAnimationFrame(tick);
+      } else if (!canMove() && frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    };
+    const pauseInteraction = () => {
+      interactionUntil = performance.now() + 4000;
+      window.clearTimeout(interactionTimer);
+      interactionTimer = window.setTimeout(sync, 4050);
+      sync();
+    };
+    const move = (direction: number) => {
+      pauseInteraction();
+      const firstCard = track.querySelector<HTMLElement>('.voice-card');
+      if (direction < 0 && viewport.scrollLeft < 2 && cycleWidth > 0) viewport.scrollLeft = cycleWidth;
+      viewport.scrollBy({ left: direction * ((firstCard?.getBoundingClientRect().width ?? viewport.clientWidth) + 20), behavior: motionPreference.matches ? 'instant' : 'smooth' });
+    };
+
+    pauseButton.addEventListener('click', () => { paused = !paused; sync(); });
+    carousel.querySelector('[data-voices-prev]')?.addEventListener('click', () => move(-1));
+    carousel.querySelector('[data-voices-next]')?.addEventListener('click', () => move(1));
+    viewport.addEventListener('pointerenter', (event) => { if (event.pointerType === 'mouse') { hovered = true; sync(); } });
+    viewport.addEventListener('pointerleave', () => { hovered = false; sync(); });
+    viewport.addEventListener('pointerdown', () => { touching = true; sync(); });
+    const endTouch = () => { if (touching) { touching = false; pauseInteraction(); } };
+    window.addEventListener('pointerup', endTouch, { passive: true });
+    window.addEventListener('pointercancel', endTouch, { passive: true });
+    viewport.addEventListener('wheel', pauseInteraction, { passive: true });
+    carousel.addEventListener('focusin', () => { focused = true; sync(); });
+    carousel.addEventListener('focusout', () => {
+      queueMicrotask(() => { focused = carousel.contains(document.activeElement); sync(); });
+    });
+    viewport.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' && event.key !== 'Home') return;
+      event.preventDefault();
+      if (event.key === 'Home') { viewport.scrollLeft = 0; pauseInteraction(); }
+      else move(event.key === 'ArrowRight' ? 1 : -1);
+    });
+    motionPreference.addEventListener('change', sync);
+    document.addEventListener('visibilitychange', sync);
+    new ResizeObserver(() => { measure(); sync(); }).observe(viewport);
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: 0.05 }).observe(viewport);
+    measure();
+    sync();
+  });
+}
+
 export function initSite(): void {
   const header = document.querySelector<HTMLElement>('#site-header');
   const menuButton = document.querySelector<HTMLButtonElement>('.menu-toggle');
@@ -26,6 +120,15 @@ export function initSite(): void {
     menuButton?.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('menu-open');
   }));
+
+  initVoicesCarousel();
+  document.querySelectorAll<HTMLVideoElement>('.hero-video video').forEach((video) => {
+    const notice = video.parentElement?.querySelector<HTMLElement>('.hero-video__error');
+    const showError = () => { if (notice) notice.hidden = false; };
+    video.addEventListener('error', showError);
+    video.querySelector('source')?.addEventListener('error', showError);
+    video.addEventListener('loadeddata', () => { if (notice) notice.hidden = true; });
+  });
 
   if (reducedMotion()) {
     document.querySelector<HTMLElement>('#intro')?.remove();

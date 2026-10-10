@@ -1,5 +1,10 @@
 ---
 import '@fontsource-variable/dm-sans';
+import { getTeamMemberName } from '../../lib/content';
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, nosnippet');
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+const memberId = Astro.url.searchParams.get('member');
+const memberName = await getTeamMemberName(memberId || undefined);
 ---
 <!doctype html>
 <html lang="es-CL">
@@ -7,9 +12,9 @@ import '@fontsource-variable/dm-sans';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow, nosnippet" />
-    <title>Integrante de desarrollo web</title>
+    <title>Integrante del equipo</title>
   </head>
-  <body><h4>Genaro Piedra Recabarren</h4></body>
+  <body><h4>{memberName}</h4></body>
 </html>
 <style>
   :global(html), :global(body){margin:0;padding:0;background:transparent;color:#f7efdf;font-family:'DM Sans Variable',Arial,sans-serif;font-synthesis:none}

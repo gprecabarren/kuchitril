@@ -1,0 +1,76 @@
+---
+interface Props { user?: { name?: string; email?: string } }
+const { user = {} } = Astro.props;
+const items = [
+  { key: 'overview', label: 'Vista general', icon: '◈' },
+  { key: 'works', label: 'Trabajos', icon: '▧' },
+  { key: 'team', label: 'Equipo', icon: '◎' },
+  { key: 'testimonials', label: 'Testimonios', icon: '❞' },
+  { key: 'video', label: 'Video', icon: '▷' },
+  { key: 'settings', label: 'SEO y redes', icon: '↗' },
+];
+---
+<div class="admin-shell" id="admin-app">
+  <a href="#admin-main" class="admin-skip">Ir al contenido</a>
+  <aside class="admin-sidebar">
+    <a class="admin-wordmark" href="/" target="_blank" rel="noopener">KUCHITRIL<span>●</span></a>
+    <span class="admin-sidebar__label">Estudio de contenidos</span>
+    <nav aria-label="Secciones de administración" class="admin-nav">
+      {items.map((item) => <button type="button" data-tab={item.key} class:list={[item.key === 'overview' && 'is-active']} aria-current={item.key === 'overview' ? 'page' : undefined}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}
+    </nav>
+    <div class="admin-sidebar__bottom">
+      <a href="/" target="_blank" rel="noopener">Ver el sitio <span aria-hidden="true">↗</span></a>
+      <div class="admin-user"><span class="admin-user__avatar" aria-hidden="true">{(user.name || 'K').slice(0, 1).toUpperCase()}</span><div><strong>{user.name || 'Administrador'}</strong><small>{user.email || 'Kuchitril'}</small></div></div>
+      <form action="/api/auth/logout" method="post"><button type="submit">Cerrar sesión</button></form>
+    </div>
+  </aside>
+  <main class="admin-main" id="admin-main">
+    <header class="admin-header"><div><p class="admin-eyebrow">Panel de Kuchitril</p><h1 id="admin-page-title">Vista general</h1></div><a class="admin-button admin-button--outline" href="/" target="_blank" rel="noopener">Abrir sitio <span aria-hidden="true">↗</span></a></header>
+    <div class="admin-status" id="admin-status" role="status" aria-live="polite"></div>
+    <section class="admin-section" data-section="overview">
+      <div class="admin-welcome"><div><p class="admin-eyebrow">Haz que se vea</p><h2>Una buena idea<br />merece <em>publicarse.</em></h2><p>Actualiza el contenido a tu ritmo. Puedes preparar un borrador y publicarlo cuando esté listo.</p><button class="admin-button admin-button--dark" data-tab="works">Agregar un trabajo <span aria-hidden="true">＋</span></button></div><span aria-hidden="true" class="admin-welcome__star">✳</span></div>
+      <div class="admin-metrics" id="admin-metrics" aria-label="Resumen de contenidos"><div class="admin-skeleton">Cargando contenidos…</div></div>
+      <div class="admin-guide"><h3>Todo tiene su lugar.</h3><ol><li><strong>Sube tu material</strong><span>Recorta las fotografías aquí mismo. Los videos se cargan directamente al almacenamiento.</span></li><li><strong>Dale contexto</strong><span>Un título, una descripción y el orden en que quieres mostrarlo.</span></li><li><strong>Publica y revisa</strong><span>Los contenidos publicados se muestran en el sitio. Archiva los que quieras guardar.</span></li></ol></div>
+    </section>
+    {['works', 'team', 'testimonials'].map((kind) => <section class="admin-section" data-section={kind} hidden>
+      <div class="admin-section-toolbar"><p data-description={kind}>{kind === 'works' ? 'Elige los trabajos destacados que aparecerán en el inicio.' : kind === 'team' ? 'Presenta a las personas que hacen posibles las ideas.' : 'Comparte experiencias reales de tus clientes.'}</p><button class="admin-button admin-button--dark" type="button" data-create={kind}>Agregar {kind === 'works' ? 'trabajo' : kind === 'team' ? 'integrante' : 'testimonio'} <span aria-hidden="true">＋</span></button></div>
+      <div class="admin-list-options"><label><input type="checkbox" data-show-archived={kind} /> Mostrar archivados</label><span>El número de orden más bajo aparece primero.</span></div>
+      <div class="admin-content-grid" data-list={kind}><div class="admin-skeleton">Cargando…</div></div>
+    </section>)}
+    <section class="admin-section" data-section="video" hidden>
+      <div class="admin-section-toolbar"><p>El video de presentación se verá debajo del gato en el inicio.</p></div>
+      <form class="admin-settings-form" id="admin-video-form">
+        <div class="admin-form-card"><div class="admin-form-card__heading"><span class="admin-form-icon" aria-hidden="true">▷</span><div><h2>Video de presentación</h2><p>MP4 o WebM, hasta 50 MB. Recomendamos 1080p y MP4 con video H.264 y audio AAC para que se reproduzca en la mayoría de los celulares.</p></div></div>
+          <div class="admin-media-field" data-media-field="video"><div class="admin-media-preview" data-media-preview><span>Tu video aparecerá aquí</span></div><div class="admin-upload-actions"><label class="admin-button admin-button--outline">Subir video<input type="file" accept="video/mp4,video/webm" data-media-input="video" hidden /></label><button class="admin-button admin-button--text" data-clear-media="video" type="button">Quitar video</button></div><input type="hidden" name="video_url" /><input type="hidden" name="video_mime" /><progress class="admin-upload-progress" data-upload-progress max="100" value="0" hidden></progress><p class="admin-upload-note" data-upload-note aria-live="polite"></p></div>
+          <div class="admin-field"><span>Imagen de portada</span><div class="admin-media-field" data-media-field="poster"><div class="admin-media-preview admin-media-preview--small" data-media-preview><span>Sin portada</span></div><label class="admin-button admin-button--outline">Elegir fotografía<input type="file" accept="image/jpeg,image/png,image/webp" data-media-input="poster" hidden /></label><input type="hidden" name="video_poster_url" /><p class="admin-upload-note" data-upload-note aria-live="polite"></p></div></div>
+          <label class="admin-check"><input type="checkbox" name="video_autoplay" /> Reproducir automáticamente sin sonido<small>El visitante siempre puede pausar el video o activar el audio.</small></label>
+        </div><div class="admin-form-footer"><p>Si no hay video, el sitio muestra el espacio reservado.</p><button class="admin-button admin-button--dark" type="submit">Guardar video <span aria-hidden="true">↗</span></button></div>
+      </form>
+    </section>
+    <section class="admin-section" data-section="settings" hidden>
+      <form class="admin-settings-form" id="admin-seo-form">
+        <div class="admin-form-card"><div class="admin-form-card__heading"><span class="admin-form-icon" aria-hidden="true">↗</span><div><h2>Cómo apareces en Google</h2><p>Escribe para tus clientes. Presenta los servicios y menciona Concepción cuando sea relevante.</p></div></div>
+          <label class="admin-field">Título del sitio<input name="home_title" maxlength="70" required placeholder="Kuchitril · Agencia de publicidad en Concepción" data-counter="70" /><small data-count-for="home_title">Recomendado: entre 40 y 60 caracteres.</small></label>
+          <label class="admin-field">Descripción en buscadores<textarea name="home_description" maxlength="200" rows="3" required data-counter="200"></textarea><small data-count-for="home_description">Resume tus servicios en una o dos frases.</small></label>
+          <div class="admin-search-preview" aria-label="Vista aproximada en buscadores"><small>kuchitril.cl</small><strong id="seo-preview-title">Kuchitril · Agencia de publicidad</strong><p id="seo-preview-description">La descripción de tu agencia aparecerá aquí.</p></div>
+          <div class="admin-field"><span>Imagen al compartir el sitio</span><div class="admin-media-field" data-media-field="social"><div class="admin-media-preview admin-media-preview--small" data-media-preview><span>Imagen para WhatsApp y redes sociales</span></div><label class="admin-button admin-button--outline">Elegir imagen<input type="file" accept="image/jpeg,image/png,image/webp" data-media-input="social" hidden /></label><input type="hidden" name="og_image_url" /><p class="admin-upload-note" data-upload-note aria-live="polite"></p></div><small>Formato horizontal recomendado: 1200 × 630 px.</small></div>
+        </div>
+        <div class="admin-form-card"><div class="admin-form-card__heading"><span class="admin-form-icon" aria-hidden="true">◎</span><div><h2>Instagram y portafolio</h2><p>Los enlaces de Instagram del encabezado y el pie utilizan esta misma dirección.</p></div></div>
+          <label class="admin-field">URL de Instagram<input name="instagram_url" type="url" placeholder="https://www.instagram.com/tu_agencia/" maxlength="500" /><small>Deja este campo vacío si todavía no quieres mostrar el enlace.</small></label>
+          <label class="admin-field">URL del portafolio completo<input name="portfolio_url" type="url" maxlength="500" placeholder="https://www.behance.net/pesadilla" /></label>
+        </div>
+        <div class="admin-form-card"><div class="admin-form-card__heading"><span class="admin-form-icon" aria-hidden="true">◉</span><div><h2>Fotografía de Diego</h2><p>Actualiza la fotografía del director creativo que aparece en el inicio.</p></div></div><div class="admin-media-field" data-media-field="founder"><div class="admin-media-preview" data-media-preview><span>Fotografía del director creativo</span></div><div class="admin-upload-actions"><label class="admin-button admin-button--outline">Elegir y recortar<input type="file" accept="image/jpeg,image/png,image/webp" data-media-input="founder" hidden /></label><button type="button" class="admin-button admin-button--text" data-clear-media="founder">Usar fotografía original</button></div><input type="hidden" name="founder_photo_url" /><progress class="admin-upload-progress" data-upload-progress max="100" value="0" hidden></progress><p class="admin-upload-note" data-upload-note aria-live="polite">JPG, PNG o WebP. Hasta 10 MB.</p></div></div>
+        <div class="admin-form-footer"><p>Los cambios se aplican al guardar.</p><button class="admin-button admin-button--dark" type="submit">Guardar cambios <span aria-hidden="true">↗</span></button></div>
+      </form>
+    </section>
+    <footer class="admin-footer">Ideas que dejan huella. <span>Kuchitril · Concepción</span></footer>
+  </main>
+</div>
+<dialog class="admin-dialog" id="admin-editor" aria-labelledby="admin-editor-title"><form id="admin-content-form"><header class="admin-dialog__header"><div><p class="admin-eyebrow" id="admin-editor-kicker">Contenido</p><h2 id="admin-editor-title">Nuevo contenido</h2></div><button class="admin-icon-button" type="button" data-close-dialog aria-label="Cerrar editor">×</button></header><div class="admin-dialog__body" id="admin-editor-fields"></div><footer class="admin-dialog__footer"><button class="admin-button admin-button--outline" type="button" data-close-dialog>Cancelar</button><button class="admin-button admin-button--dark" type="submit">Guardar <span aria-hidden="true">↗</span></button></footer></form></dialog>
+<dialog class="admin-dialog admin-crop-dialog" id="admin-cropper" aria-labelledby="admin-crop-title"><header class="admin-dialog__header"><div><p class="admin-eyebrow">Dale el encuadre</p><h2 id="admin-crop-title">Recortar fotografía</h2></div><button class="admin-icon-button" type="button" data-cancel-crop aria-label="Cancelar recorte">×</button></header><div class="admin-dialog__body"><div class="admin-crop-stage"><canvas id="admin-crop-canvas" width="800" height="800" role="img" tabindex="0" aria-describedby="admin-crop-hint" aria-label="Vista previa del recorte"></canvas></div><p class="admin-crop-hint" id="admin-crop-hint">Arrastra la foto o enfoca la vista previa y usa las flechas del teclado. Mantén Shift para moverla más rápido. También puedes usar los botones.</p><div class="admin-crop-controls"><label class="admin-field">Formato<select id="admin-crop-ratio"><option value="1">Cuadrado · 1:1</option><option value="0.8">Retrato · 4:5</option><option value="1.3333333333333333">Trabajo · 4:3</option><option value="1.9047619047619047">Redes · 1200:630</option><option value="1.7777777777777777">Video · 16:9</option></select></label><label class="admin-field">Acercamiento<input id="admin-crop-zoom" type="range" min="1" max="3" step="0.01" value="1" aria-valuetext="100%" /></label></div><div class="admin-crop-pan" role="group" aria-label="Mover fotografía"><button type="button" class="admin-icon-button" data-pan="left" aria-label="Mover foto a la izquierda">←</button><button type="button" class="admin-icon-button" data-pan="up" aria-label="Mover foto hacia arriba">↑</button><button type="button" class="admin-icon-button" data-pan="down" aria-label="Mover foto hacia abajo">↓</button><button type="button" class="admin-icon-button" data-pan="right" aria-label="Mover foto a la derecha">→</button><button type="button" class="admin-button admin-button--text" id="admin-crop-reset">Centrar</button></div><p class="admin-alert" id="admin-crop-error" role="alert" hidden></p></div><footer class="admin-dialog__footer"><button type="button" class="admin-button admin-button--outline" data-cancel-crop>Cancelar</button><button type="button" class="admin-button admin-button--dark" id="admin-crop-apply">Usar este recorte <span aria-hidden="true">✓</span></button></footer></dialog>
+<script>import '../../scripts/admin';</script>
+<dialog class="admin-dialog" id="admin-confirm" aria-labelledby="admin-confirm-title" aria-describedby="admin-confirm-message">
+  <header class="admin-dialog__header"><h2 id="admin-confirm-title">Confirmar acción</h2><button class="admin-icon-button" type="button" data-cancel-confirm aria-label="Cancelar">×</button></header>
+  <div class="admin-dialog__body"><p id="admin-confirm-message"></p></div>
+  <footer class="admin-dialog__footer"><button class="admin-button admin-button--outline" type="button" data-cancel-confirm id="admin-confirm-cancel">Cancelar</button><button class="admin-button admin-button--dark" type="button" id="admin-confirm-accept">Confirmar</button></footer>
+</dialog>

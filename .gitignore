@@ -3,3 +3,9 @@ dist/
 .astro/
 .vercel/
 assets-original/
+
+.env
+.env.*
+!.env.example
+
+.cms-test/

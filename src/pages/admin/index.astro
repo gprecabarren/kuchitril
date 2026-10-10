@@ -1,0 +1,14 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import AdminWorkspace from '../../components/admin/AdminWorkspace.astro';
+import AdminLogin from '../../components/admin/AdminLogin.astro';
+import { getAdminUser } from '../../lib/auth';
+const user = await getAdminUser(Astro);
+const errors: Record<string, string> = {
+  conexion: 'No pudimos conectar con Vercel. Vuelve a intentarlo.',
+  acceso: 'La sesión no se completó o venció. Vuelve a iniciar sesión.',
+  autorizacion: 'Esta cuenta no está autorizada para administrar el sitio. Usa la cuenta de Kuchitril.',
+};
+const error = errors[Astro.url.searchParams.get('error') || ''];
+---
+<AdminLayout>{user ? <AdminWorkspace user={user} /> : <AdminLogin error={error} />}</AdminLayout>

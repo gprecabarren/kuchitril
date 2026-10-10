@@ -4,16 +4,20 @@ import '@fontsource/bebas-neue';
 import Icon from '../components/Icon.astro';
 import Consent from '../components/Consent.astro';
 import { site } from '../config/site';
+import { getSiteSettings, safeExternalUrl, safeMediaUrl, type SiteSettings } from '../lib/content';
 import '../styles/global.css';
 
-type Props = { title: string; description?: string; page?: 'home' | 'legal' | 'error' };
+type Props = { title: string; description?: string; page?: 'home' | 'legal' | 'error'; settings?: SiteSettings };
 const { title, description = site.description, page = 'home' } = Astro.props;
+const settings = Astro.props.settings ?? await getSiteSettings();
+const instagramUrl = safeExternalUrl(settings.instagram_url, ['instagram.com', 'www.instagram.com']);
+const portfolioUrl = safeExternalUrl(settings.portfolio_url) || site.portfolio;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const shareImage = new URL('/assets/kuchitril-referencia.webp', Astro.site);
+const shareImage = new URL(safeMediaUrl(settings.og_image_url) || '/assets/kuchitril-referencia.webp', Astro.site);
 const schema = {
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'Organization', '@id': `${site.url}/#organization`, name: site.name, url: site.url, logo: `${site.url}/assets/gato-bandera.webp`, slogan: 'Ideas que dejan huella.', description: site.description, address: { '@type': 'PostalAddress', addressLocality: site.headquarters, addressRegion: 'Biobío', addressCountry: 'CL' }, areaServed: ['Concepción', 'Santiago', 'Chile'], email: site.email, telephone: site.phone, sameAs: [site.portfolio], founder: { '@type': 'Person', name: 'Diego Padilla Dalia', jobTitle: 'Director creativo' }, knowsAbout: ['Publicidad', 'Marketing digital', 'Desarrollo web', 'Audiovisual', 'Branding'] },
+    { '@type': 'Organization', '@id': `${site.url}/#organization`, name: site.name, url: site.url, logo: `${site.url}/assets/gato-bandera.webp`, slogan: 'Ideas que dejan huella.', description: page === 'home' ? description : site.description, address: { '@type': 'PostalAddress', addressLocality: site.headquarters, addressRegion: 'Biobío', addressCountry: 'CL' }, areaServed: ['Concepción', 'Santiago', 'Chile'], email: site.email, telephone: site.phone, sameAs: [portfolioUrl, ...(instagramUrl ? [instagramUrl] : [])], founder: { '@type': 'Person', name: 'Diego Padilla Dalia', jobTitle: 'Director creativo' }, knowsAbout: ['Publicidad', 'Marketing digital', 'Desarrollo web', 'Audiovisual', 'Branding'] },
     { '@type': 'WebSite', '@id': `${site.url}/#website`, url: site.url, name: site.name, inLanguage: 'es-CL', publisher: { '@id': `${site.url}/#organization` } },
     { '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical.toString(), name: title, description, inLanguage: 'es-CL', isPartOf: { '@id': `${site.url}/#website` } },
   ],
@@ -55,15 +59,17 @@ const schema = {
       <nav class="main-nav" aria-label="Navegación principal">
         <a href="/#nosotros">Nosotros</a>
         <a href="/#servicios">Servicios</a>
-        <a href={site.portfolio} target="_blank" rel="noopener noreferrer">Portafolio</a>
+        <a href={portfolioUrl} target="_blank" rel="noopener noreferrer">Portafolio</a>
       </nav>
+      {instagramUrl && <a class="social-link social-link--header" href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram de Kuchitril"><Icon kind="instagram" /></a>}
       <a class="header-contact" href={site.whatsapp} data-contact="whatsapp" target="_blank" rel="noopener noreferrer">Hablemos <Icon kind="arrow" /></a>
       <button class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
     </header>
     <nav class="mobile-menu" id="mobile-menu" aria-label="Navegación móvil" hidden>
       <a href="/#nosotros">Nosotros</a>
       <a href="/#servicios">Servicios</a>
-      <a href={site.portfolio} target="_blank" rel="noopener noreferrer">Portafolio</a>
+      <a href={portfolioUrl} target="_blank" rel="noopener noreferrer">Portafolio</a>
+      {instagramUrl && <a class="mobile-menu__instagram" href={instagramUrl} target="_blank" rel="noopener noreferrer"><Icon kind="instagram" /> Instagram</a>}
       <a href={site.whatsapp} data-contact="whatsapp" target="_blank" rel="noopener noreferrer">Hablemos <Icon kind="arrow" /></a>
     </nav>
     <slot />
@@ -74,9 +80,10 @@ const schema = {
       </div>
       <div class="footer-bottom">
         <span>© {new Date().getFullYear()} Kuchitril · Agencia de publicidad</span>
-        <div><a href={site.portfolio} target="_blank" rel="noopener noreferrer">Portafolio</a><a href={site.whatsapp} data-contact="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
+        <div><a href={portfolioUrl} target="_blank" rel="noopener noreferrer">Portafolio</a><a href={site.whatsapp} data-contact="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>{instagramUrl && <a class="footer-instagram" href={instagramUrl} target="_blank" rel="noopener noreferrer"><Icon kind="instagram" /> Instagram</a>}</div>
       </div>
-      <div class="footer-legal"><span>Casa matriz: Concepción · Santiago – Concepción</span><div><a href="/privacidad/">Privacidad</a><a href="/cookies/">Cookies</a><a href="/aviso-legal/">Aviso legal</a><button type="button" data-cookie-settings>Preferencias de cookies</button></div></div>
+      <div class="footer-locations" aria-label="Ubicación y cobertura"><div><Icon kind="pin" /><span><small>CASA MATRIZ</small><strong>Concepción</strong></span></div><div><Icon kind="pin" /><span><small>TRABAJAMOS CONTIGO EN</small><strong>Santiago y Concepción</strong></span></div></div>
+      <div class="footer-legal"><span>Desde Concepción, ideas para todo Chile.</span><div><a href="/privacidad/">Privacidad</a><a href="/cookies/">Cookies</a><a href="/aviso-legal/">Aviso legal</a><button type="button" data-cookie-settings>Preferencias de cookies</button></div></div>
     </footer>
     <a class="whatsapp-float" href={site.whatsapp} data-contact="whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Hablar con Kuchitril por WhatsApp">
       <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 .8a15.1 15.1 0 0 0-13 22.8L.9 31l7.6-2a15.2 15.2 0 1 0 7.5-28.2Zm0 27.6a12.5 12.5 0 0 1-6.4-1.8l-.5-.3-4.5 1.2 1.2-4.4-.3-.5A12.6 12.6 0 1 1 16 28.4Zm6.9-9.4c-.4-.2-2.2-1.1-2.5-1.2-.3-.1-.6-.2-.8.2-.2.3-.9 1.2-1.1 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3.1-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8l.6-.7.4-.6c.1-.2 0-.5 0-.7-.1-.2-.8-2-1.1-2.7-.3-.7-.6-.6-.8-.6h-.7c-.3 0-.7.1-1 .5-.3.4-1.3 1.3-1.3 3.1s1.4 3.5 1.6 3.7c.2.2 2.7 4.2 6.5 5.9.9.4 1.6.6 2.1.8.9.3 1.7.2 2.3.1.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.7.2-1.8-.1-.2-.3-.3-.7-.5Z"/></svg>

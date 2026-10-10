@@ -1,10 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    { "source": "/portafolio/:path*", "destination": "https://www.behance.net/pesadilla", "permanent": true },
-    { "source": "/admin/:path*", "destination": "/", "permanent": true }
+    { "source": "/portafolio/:path*", "destination": "https://www.behance.net/pesadilla", "permanent": true }
   ],
   "headers": [
+    { "source": "/admin/:path*", "headers": [
+      { "key": "X-Robots-Tag", "value": "noindex, nofollow, nosnippet" },
+      { "key": "Cache-Control", "value": "private, no-store" },
+      { "key": "Content-Security-Policy", "value": "frame-ancestors 'none'; object-src 'none'; base-uri 'self'" }
+    ] },
+    { "source": "/api/:path*", "headers": [
+      { "key": "X-Robots-Tag", "value": "noindex, nofollow, nosnippet" },
+      { "key": "Cache-Control", "value": "private, no-store" }
+    ] },
     { "source": "/equipo/(.*)", "headers": [
       { "key": "X-Robots-Tag", "value": "noindex, nofollow, nosnippet" }
     ] },

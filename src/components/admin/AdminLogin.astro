@@ -1,0 +1,20 @@
+---
+interface Props { error?: string }
+const { error } = Astro.props;
+---
+<main class="admin-login">
+  <a class="admin-wordmark admin-login__brand" href="/">KUCHITRIL<span>●</span></a>
+  <div class="admin-login__art" aria-hidden="true"><img src="/assets/gato-bandera.webp" alt="" /><span>✳</span></div>
+  <section class="admin-login__card">
+    <p class="admin-eyebrow">Tu espacio creativo</p>
+    <h1>Ideas nuevas.<br /><em>El control en tus manos.</em></h1>
+    <p>Administra los trabajos, el equipo y los contenidos de la agencia desde un solo lugar.</p>
+    {error && <p class="admin-alert admin-alert--error" role="alert">{error}</p>}
+    <a class="admin-button admin-button--dark admin-login__action" href="/api/auth/vercel/login">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 3 23 22H1Z" /></svg>
+      Continuar con Vercel <span aria-hidden="true">↗</span>
+    </a>
+    <small>Acceso exclusivo para los administradores autorizados de Kuchitril.</small>
+  </section>
+  <a class="admin-login__back" href="/">← Volver al sitio</a>
+</main>
