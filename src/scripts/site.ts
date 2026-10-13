@@ -118,6 +118,7 @@ export function initSite(): void {
   mobileMenu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
     if (mobileMenu) mobileMenu.hidden = true;
     menuButton?.setAttribute('aria-expanded', 'false');
+    menuButton?.setAttribute('aria-label', 'Abrir menú');
     document.body.classList.remove('menu-open');
   }));
 

@@ -255,6 +255,10 @@ if (app) {
     field?.querySelectorAll<HTMLInputElement>('input[type=hidden]').forEach((input) => { input.value = ''; });
     const preview = field?.querySelector('[data-media-preview]');
     if (preview) preview.innerHTML = field?.dataset.mediaField === 'founder' ? '<img src="/assets/fundador.webp" alt="Vista previa de la fotografía original" />' : '<span>Sin archivo</span>';
+    const note = field?.querySelector<HTMLElement>('[data-upload-note]');
+    if (note) { note.textContent = ''; note.classList.remove('is-error'); }
+    const progress = field?.querySelector<HTMLProgressElement>('[data-upload-progress]');
+    if (progress) { progress.value = 0; progress.hidden = true; }
     const form = field?.closest<HTMLFormElement>('form');
     if (form === contentForm) editorDirty = true; else if (form) dirtySettings.add(form);
   }
