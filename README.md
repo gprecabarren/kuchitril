@@ -2,6 +2,8 @@
 
 Sitio de la agencia y gestor de contenido con **Astro SSR**, TypeScript, Supabase y el adaptador oficial de Vercel. Las animaciones usan GSAP y CSS. Tipografía general DM Sans; Bebas Neue provisional en la marca hasta recibir Stapen con licencia web. Node.js **22** en producción.
 
+El adaptador `@astrojs/vercel` está fijado en **11.0.12** para evitar la regresión de ejecución SSR de 11.0.13 ([incidencia oficial](https://github.com/withastro/astro/issues/18328)). `npm run build` comprueba además el arranque de la función empaquetada en una carpeta temporal aislada, el acceso al login y el bloqueo de solicitudes sin sesión. No consulta servicios externos. Antes de actualizar el adaptador, comprobar también las rutas publicadas.
+
 ## Arquitectura
 
 - El servidor de Astro consulta el contenido publicado en Supabase al recibir la solicitud. Los cambios del panel no necesitan un nuevo despliegue.

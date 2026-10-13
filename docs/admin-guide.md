@@ -35,13 +35,14 @@ Desactiva **Publicado** si quieres preparar un borrador. Un trabajo publicado qu
 
 | Uso | Formato recomendado |
 | --- | --- |
-| Fotografía del equipo o de Diego | Retrato · 4:5 |
+| Fotografía del equipo | Cuadrado · 1:1 |
+| Fotografía de Diego | Retrato · 4:5 |
 | Fotografía de un trabajo | Trabajo · 4:3 |
 | Fotografía de un testimonio | Cuadrado · 1:1 |
 | Portada del video | Video · 16:9 |
 | Imagen para compartir en redes | Redes · 1200:630 |
 
-El recorte crea una versión para la web; no modifica el archivo original de tu computador. Usa fotografías nítidas con margen alrededor de la persona u objeto. Las fotografías del equipo se presentan en blanco y negro en el sitio.
+El recorte crea una versión para la web; no modifica el archivo original de tu computador. Usa fotografías nítidas con margen alrededor de la persona u objeto. Las fotografías del equipo se presentan pequeñas, circulares y en blanco y negro, en una sola fila. Centra el rostro con margen para que el borde circular no lo corte.
 
 **Los archivos subidos son material para difusión pública.** Una vez completada la carga, pueden ser accesibles mediante su enlace, incluso antes de guardar o publicar el contenido asociado. No subas documentos privados, datos sensibles ni material sin autorización.
 

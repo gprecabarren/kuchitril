@@ -272,7 +272,7 @@ if (app) {
     if (!accepted.includes(original.type)) { note.textContent = video ? 'Elige un video MP4 o WebM.' : 'Elige una fotografía JPG, PNG o WebP.'; note.classList.add('is-error'); return; }
     if (original.size > (video ? 50 : 10) * 1024 * 1024) { note.textContent = `El archivo supera el límite de ${video ? 50 : 10} MB. Exporta una versión más liviana.`; note.classList.add('is-error'); return; }
     try {
-      const file = video ? original : await crop(original, kind === 'team' || kind === 'founder' ? '0.8' : kind === 'works' ? '1.3333333333333333' : kind === 'social' ? '1.9047619047619047' : kind === 'poster' ? '1.7777777777777777' : '1');
+      const file = video ? original : await crop(original, kind === 'founder' ? '0.8' : kind === 'works' ? '1.3333333333333333' : kind === 'social' ? '1.9047619047619047' : kind === 'poster' ? '1.7777777777777777' : '1');
       if (!file) return;
       await uploadMedia(file, field, video);
     } catch (error) { note.textContent = error instanceof Error ? error.message : 'No pudimos cargar el archivo. Inténtalo de nuevo.'; note.classList.add('is-error'); }

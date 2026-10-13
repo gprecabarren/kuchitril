@@ -93,13 +93,13 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
       </div>
       {team.length > 0 && <div class="team" aria-labelledby="team-title">
         <div class="team__heading"><span class="eyebrow">DISTINTAS MIRADAS, UNA MISMA IDEA</span><h3 id="team-title">El equipo.</h3></div>
-        <div class="team__grid">{team.map((person, index) => <article class="team-card">
+        <div class:list={['team__grid', { 'team__grid--scroll': team.length > 3 }]} tabindex={team.length > 3 ? '0' : undefined} role="list" aria-label="Integrantes del equipo">{team.map((person) => <article class="team-card" role="listitem">
           <div class:list={['team-card__portrait', { 'team-card__portrait--photo': safeMediaUrl(person.photo_url) }]}>
-            <span class="team-card__number">{String(index + 1).padStart(2, '0')}</span>
-            {safeMediaUrl(person.photo_url) ? <img src={safeMediaUrl(person.photo_url)} alt={person.exclude_name_from_index ? 'Integrante del equipo' : person.photo_alt || person.name} loading="lazy" /> : <><Icon kind="portrait" /><span>Foto del equipo</span></>}
+            {safeMediaUrl(person.photo_url) ? <img src={safeMediaUrl(person.photo_url)} alt={person.exclude_name_from_index ? 'Integrante del equipo' : person.photo_alt || person.name} loading="lazy" width="104" height="104" /> : <Icon kind="portrait" />}
           </div>
           {person.exclude_name_from_index ? <iframe class="team-card__name" src={`/equipo/desarrollo/${person.id ? `?member=${encodeURIComponent(person.id)}` : ''}`} title="Integrante del equipo" loading="lazy"></iframe> : <h4>{person.name}</h4>}<p>{person.role}</p>
         </article>)}</div>
+        {team.length > 3 && <p class="team__hint">Desliza para conocer a todo el equipo.</p>}
       </div>}
     </section>
     <section class="services section-shell" id="servicios" aria-labelledby="services-title">
