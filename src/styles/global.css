@@ -209,7 +209,7 @@ h1,h2,h3{letter-spacing:-.055em}
 .team{margin-top:76px;padding-top:30px}
 .team__heading{margin-bottom:28px}
 .team__heading h3{font-size:2.35rem}
-.team__grid{display:flex;flex-wrap:nowrap;justify-content:center;align-items:flex-start;gap:28px;max-width:760px;margin:0 auto;padding:4px 0 12px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#75948c transparent;overscroll-behavior-x:contain}
+.team__grid{display:flex;flex-wrap:nowrap;justify-content:center;align-items:flex-start;gap:28px;max-width:760px;margin:0 auto;padding:4px 0 12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#75948c transparent;overscroll-behavior-x:contain}
 .team__grid--scroll{justify-content:flex-start}
 .team-card{flex:0 0 200px;min-width:0;text-align:center;container-type:inline-size}
 .team-card__portrait{width:104px;height:104px;aspect-ratio:1;max-width:none;border:1px solid rgba(179,208,197,.4);border-radius:50%;margin:0 auto;background:#173b37;gap:0;overflow:hidden}

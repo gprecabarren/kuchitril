@@ -27,6 +27,8 @@ Los tipos y el esquema se documentan en [docs/cms-data.md](docs/cms-data.md). La
 
 Las credenciales del cliente se mantienen fuera del repositorio. No registrar el proyecto de Supabase ni la titularidad de Vercel con una cuenta personal del desarrollador.
 
+Actualmente Vercel usa Hobby por la elección de una cuenta gratuita. Su [documentación de planes](https://vercel.com/docs/plans/hobby) limita Hobby a uso personal no comercial: para la operación comercial de la agencia debe resolverse un plan adecuado. No se ha contratado un plan de pago.
+
 ## Desarrollo local
 
 ```powershell
