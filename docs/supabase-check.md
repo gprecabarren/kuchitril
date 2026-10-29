@@ -1,14 +1,26 @@
 # Comprobación mínima de Supabase
 
-## Estado: bloqueada por permisos públicos existentes
+## Estado: activo y probado
 
 Auditoría del 29 de octubre de 2026: el repositorio `gprecabarren/kuchitril` es público y su rama predeterminada es `main`. No existían workflows de Actions, crons en `vercel.json` ni extensión `pg_cron` instalada en Supabase. No se duplicó ninguna tarea.
 
-Las cinco tablas de `public` (`works`, `team_members`, `testimonials`, `site_settings`, `cms_media`) tienen RLS activo, cero políticas y no conceden SELECT a `anon`. Es la arquitectura intencional del CMS: acceso desde el servidor. La Data API rechazó la prueba con `sb_publishable_…`: HTTP 401, código PostgreSQL `42501`, permiso denegado. No se han modificado grants, políticas ni registros.
+Las cinco tablas del CMS (`works`, `team_members`, `testimonials`, `site_settings`, `cms_media`) conservan RLS activo y sus permisos originales: acceso desde el servidor. La prueba inicial fue rechazada con HTTP 401 y se dejó el flujo desactivado. El usuario autorizó después la excepción mínima necesaria.
 
-El workflow está implementado para probar ambos trabajos reales, pero debe permanecer **desactivado** mientras no exista una fila con lectura pública previamente autorizada. No hay una consulta que pueda cumplir simultáneamente la lectura pública exigida y la prohibición de ampliar permisos. No considerar esta implementación un monitor operativo hasta resolver ese requisito y completar ambos trabajos correctamente.
+Se creó únicamente `public.health_check`, una tabla aislada con una columna `id smallint`, clave primaria y restricción `id = 1`. Contiene una única fila `id=1` sin nombres, contenidos ni datos personales. RLS está activo y la única política autoriza SELECT a `anon` cuando `id=1`. El único grant público es `SELECT(id)` para `anon`; no hay escritura ni acceso para `authenticated`. No se añadieron funciones, vistas, secuencias ni acceso a tablas del sitio. **No añadir datos del negocio a esta tabla.**
 
-### Prueba real publicada
+Migración aplicada en el proyecto del cliente desde el SQL Editor y guardada en `supabase/migrations/20261029072121_public_health_check.sql`. El cambio se ejecutó en una transacción con límites de bloqueo y ejecución. No fue necesario cambiar credenciales ni usar claves administrativas en Actions.
+
+### Prueba real correcta
+
+[Ejecución manual #2, 29 de octubre de 2026](https://github.com/gprecabarren/kuchitril/actions/runs/40835146595), commit `13b4619`:
+
+- `database`: **success**, validó exactamente `health_check.id=1` mediante la clave publicable.
+- `renew`: **success**, GitHub aceptó la renovación y GET confirmó **active**.
+- Estado final del workflow: **active**. Ambos trabajos se ejecutaron en Ubuntu estándar del repositorio público.
+- Verificación adicional: `health_check?id=eq.2` devuelve `[]` y se rechaza como resultado válido; `site_settings?id=eq.1` sigue devolviendo 401. La auditoría SQL confirma que las cinco tablas del CMS conservan sus restricciones y que la tabla de comprobación no admite escrituras públicas.
+- Se volvió a ejecutar el Security Advisor tras el cambio: sin errores detectados.
+
+### Historial de diagnóstico
 
 [Ejecución manual #1, 29 de octubre de 2026](https://github.com/gprecabarren/kuchitril/actions/runs/40834455195), commit `afd5e18fc0545d347f2a824a972afd8fd12c5933`, duración total 14 segundos:
 
@@ -17,7 +29,7 @@ El workflow está implementado para probar ambos trabajos reales, pero debe perm
 - Tras finalizar ambos trabajos, se desactivó mediante PUT `/disable` (**204**); GET confirmó **disabled_manually**. No se dejaron ejecuciones periódicas destinadas a fallar.
 - Ambas variables quedaron configuradas en Actions, sin claves secretas ni administrativas. El repositorio siguió público y se usaron runners Ubuntu estándar gratuitos.
 
-Para completar la puesta en marcha falta resolver el requisito de lectura pública: con las restricciones actuales no existe una fila elegible. No basta con habilitar el workflow; primero debe existir una consulta autorizada, actualizarse su validación si corresponde y aprobarse una nueva prueba completa. Esta documentación no autoriza ampliar RLS ni grants.
+El bloqueo anterior quedó resuelto exclusivamente con la tabla aislada descrita arriba; no se abrió la lectura del CMS.
 
 ## Programación y consulta
 
@@ -25,8 +37,8 @@ Archivo: `.github/workflows/supabase-check.yml`.
 
 - Lunes, miércoles y viernes a las **04:17 America/Santiago**, con ajustes estacionales a cargo de GitHub: `cron: '17 4 * * 1,3,5'` y `timezone: America/Santiago`.
 - Intervalos de dos, dos y tres días. También admite `workflow_dispatch`; no escucha push ni pull_request.
-- Consulta de diagnóstico actual: `GET https://xempniqtispcggogngzc.supabase.co/rest/v1/site_settings?select=id&id=eq.1&limit=1`.
-- `site_settings.id=1` es la fila singleton del CMS, pero **no tiene acceso público autorizado**. La consulta está deliberadamente sujeta a los permisos vigentes y falla; no es un bypass.
+- Consulta actual: `GET https://xempniqtispcggogngzc.supabase.co/rest/v1/health_check?select=id&id=eq.1&limit=1`.
+- `health_check.id=1` es el identificador fijo de comprobación; la consulta está sujeta a grants y RLS, sin bypass.
 - Solo se solicita `id`, por clave primaria y con `limit=1`. No se consultan contenidos, nombres, fotos ni páginas del sitio.
 - Debe devolver exactamente `[{"id":1}]`; JSON inválido, vacío o un identificador diferente hacen fallar el trabajo.
 
@@ -49,12 +61,12 @@ Ambos trabajos usan `ubuntu-latest` estándar, gratuito en este repositorio púb
 
 Cada trabajo tiene un límite de dos minutos. La consulta normal es una petición diminuta, limitada además a 4096 bytes. curl exige HTTPS y TLS moderno, falla con errores HTTP, conexión máxima de 10 segundos, petición máxima de 20 segundos y como máximo dos reintentos con espera de dos segundos y ventana acotada. El archivo temporal se elimina al terminar. Los trabajos se ejecutan independientemente; su tiempo de cola no queda cubierto por el límite de ejecución.
 
-No se hacen escrituras en Supabase, commits periódicos, despliegues, peticiones al sitio ni actividad artificial en archivos. El cambio del icono de WhatsApp se despliega una vez como parte de la modificación visual solicitada, ajena a las ejecuciones del monitor.
+Las ejecuciones no hacen escrituras en Supabase, commits periódicos, despliegues, peticiones al sitio ni actividad artificial en archivos. La única inserción fue la fila no sensible creada durante la migración inicial. Los cambios de implementación se publicaron en Git; el monitor no realiza despliegues ni depende de Vercel.
 
 ## Ejecutar, desactivar y recuperar
 
 1. Abrir GitHub → Actions → **Supabase minimal check**.
-2. Si está desactivado, **Enable workflow** y después **Run workflow**, rama `main`. Mientras continúe el bloqueo actual, la prueba de base de datos fallará y debe volver a desactivarse al terminar.
+2. Usar **Run workflow**, rama `main`. Si está desactivado, habilitarlo primero con **Enable workflow**.
 3. Revisar ambos trabajos: el primero debe validar el identificador y el segundo confirmar la renovación. Un HTTP 200 vacío no es éxito.
 4. Para detenerlo, esperar que no queden ejecuciones pendientes o en curso (o cancelarlas) y usar **Disable workflow**. De lo contrario, una renovación aún en curso podría volver a activarlo.
 5. Desde CLI autenticado: `gh workflow run supabase-check.yml --repo gprecabarren/kuchitril --ref main`; para desactivar: `gh workflow disable supabase-check.yml --repo gprecabarren/kuchitril`.
