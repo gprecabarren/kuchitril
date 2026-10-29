@@ -8,6 +8,17 @@ Las cinco tablas de `public` (`works`, `team_members`, `testimonials`, `site_set
 
 El workflow está implementado para probar ambos trabajos reales, pero debe permanecer **desactivado** mientras no exista una fila con lectura pública previamente autorizada. No hay una consulta que pueda cumplir simultáneamente la lectura pública exigida y la prohibición de ampliar permisos. No considerar esta implementación un monitor operativo hasta resolver ese requisito y completar ambos trabajos correctamente.
 
+### Prueba real publicada
+
+[Ejecución manual #1, 29 de octubre de 2026](https://github.com/gprecabarren/kuchitril/actions/runs/40834455195), commit `afd5e18fc0545d347f2a824a972afd8fd12c5933`, duración total 14 segundos:
+
+- `database`: falló en cinco segundos con HTTP **401**, salida curl **22**. No devolvió un identificador autorizado; no se declaró éxito.
+- `renew`: terminó correctamente en tres segundos pese al fallo independiente de la consulta. GitHub aceptó PUT `/enable` y la comprobación GET devolvió **active**.
+- Tras finalizar ambos trabajos, se desactivó mediante PUT `/disable` (**204**); GET confirmó **disabled_manually**. No se dejaron ejecuciones periódicas destinadas a fallar.
+- Ambas variables quedaron configuradas en Actions, sin claves secretas ni administrativas. El repositorio siguió público y se usaron runners Ubuntu estándar gratuitos.
+
+Para completar la puesta en marcha falta resolver el requisito de lectura pública: con las restricciones actuales no existe una fila elegible. No basta con habilitar el workflow; primero debe existir una consulta autorizada, actualizarse su validación si corresponde y aprobarse una nueva prueba completa. Esta documentación no autoriza ampliar RLS ni grants.
+
 ## Programación y consulta
 
 Archivo: `.github/workflows/supabase-check.yml`.
