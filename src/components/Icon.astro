@@ -1,5 +1,5 @@
 ---
-type Props = { kind?: 'star' | 'arrow' | 'down' | 'play' | 'portrait' | 'instagram' | 'pin'; class?: string };
+type Props = { kind?: 'star' | 'arrow' | 'down' | 'play' | 'portrait' | 'instagram' | 'whatsapp' | 'pin'; class?: string };
 const { kind = 'star', class: className = '' } = Astro.props;
 ---
 <svg class={`icon ${className}`} viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
@@ -9,5 +9,6 @@ const { kind = 'star', class: className = '' } = Astro.props;
   {kind === 'play' && <path d="m18 11 22 13-22 13V11Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />}
   {kind === 'portrait' && <><circle cx="24" cy="17" r="8" stroke="currentColor" stroke-width="1.5" /><path d="M9 41c0-9 6-14 15-14s15 5 15 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></>}
   {kind === 'instagram' && <><rect x="7" y="7" width="34" height="34" rx="10" stroke="currentColor" stroke-width="3" /><circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="3" /><circle cx="34" cy="14" r="2.2" fill="currentColor" /></>}
+  {kind === 'whatsapp' && <><path d="M41 23.5A17 17 0 0 1 15.5 38.2L6 41l2.8-9.3A17 17 0 1 1 41 23.5Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" /><path d="m17 14 4 7-3 3c2 4 4 6 8 8l3-3 7 4c-1 4-4 5-8 3-8-3-14-9-17-17-2-4-1-7 3-8Z" transform="translate(5 3) scale(.8)" fill="currentColor" /></>}
   {kind === 'pin' && <><path d="M38 20c0 11-14 23-14 23S10 31 10 20a14 14 0 1 1 28 0Z" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" /><circle cx="24" cy="20" r="5" stroke="currentColor" stroke-width="2.6" /></>}
 </svg>

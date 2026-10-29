@@ -1,0 +1,66 @@
+name: Supabase minimal check
+
+on:
+  schedule:
+    - cron: '17 4 * * 1,3,5'
+      timezone: America/Santiago
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: supabase-minimal-check
+  cancel-in-progress: false
+
+jobs:
+  database:
+    name: Check one database identifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Read exactly one identifier through the Data API
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+          # Fail closed: never accept legacy JWTs, secret keys or arbitrary hosts.
+          [[ "$SUPABASE_URL" == 'https://xempniqtispcggogngzc.supabase.co' ]] || { echo '::error::Unexpected Supabase project URL'; exit 1; }
+          [[ "$SUPABASE_PUBLISHABLE_KEY" =~ ^sb_publishable_[A-Za-z0-9_-]+$ ]] || { echo '::error::An sb_publishable_ key is required'; exit 1; }
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          # Currently blocked by existing grants/RLS; do not change permissions to pass.
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error \
+            --connect-timeout 10 --max-time 20 \
+            --retry 2 --retry-delay 2 --retry-max-time 65 \
+            --max-filesize 4096 \
+            --header "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            --header 'Accept: application/json' \
+            --output "$response" \
+            "$SUPABASE_URL/rest/v1/site_settings?select=id&id=eq.1&limit=1"
+          jq --exit-status 'type == "array" and length == 1 and (.[0] | type == "object" and keys == ["id"] and .id == 1)' "$response" >/dev/null
+          echo 'Verified exactly one identifier: site_settings.id=1'
+
+  renew:
+    name: Renew workflow independently
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    # No needs dependency: run even when the database job fails.
+    if: ${{ always() }}
+    permissions:
+      actions: write
+    steps:
+      - name: Enable this workflow and verify active state
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          endpoint="https://api.github.com/repos/$GH_REPO/actions/workflows/supabase-check.yml"
+          opts=(--proto '=https' --tlsv1.2 --fail --silent --show-error --connect-timeout 10 --max-time 20 --retry 2 --retry-delay 2 --retry-max-time 35 --header "Authorization: Bearer $GH_TOKEN" --header 'Accept: application/vnd.github+json' --header 'X-GitHub-Api-Version: 2026-03-10')
+          curl "${opts[@]}" --request PUT "$endpoint/enable"
+          curl "${opts[@]}" "$endpoint" | jq --exit-status '.state == "active"' >/dev/null
+          echo 'GitHub accepted renewal; workflow state is active.'
