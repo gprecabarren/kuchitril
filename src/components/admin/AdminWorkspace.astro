@@ -1,4 +1,5 @@
 ---
+import { homeFields, themeFields } from '../../config/appearance';
 interface Props { user?: { name?: string; email?: string } }
 const { user = {} } = Astro.props;
 const items = [
@@ -7,6 +8,7 @@ const items = [
   { key: 'team', label: 'Equipo', icon: '◎' },
   { key: 'testimonials', label: 'Testimonios', icon: '❞' },
   { key: 'video', label: 'Video', icon: '▷' },
+  { key: 'appearance', label: 'Inicio y apariencia', icon: '◐' },
   { key: 'settings', label: 'SEO y redes', icon: '↗' },
 ];
 ---
@@ -45,6 +47,33 @@ const items = [
           <div class="admin-field"><span>Imagen de portada</span><div class="admin-media-field" data-media-field="poster"><div class="admin-media-preview admin-media-preview--small" data-media-preview><span>Sin portada</span></div><label class="admin-button admin-button--outline">Elegir fotografía<input type="file" accept="image/jpeg,image/png,image/webp" data-media-input="poster" hidden /></label><input type="hidden" name="video_poster_url" /><p class="admin-upload-note" data-upload-note aria-live="polite"></p></div></div>
           <label class="admin-check"><input type="checkbox" name="video_autoplay" /> Reproducir automáticamente sin sonido<small>El visitante siempre puede pausar el video o activar el audio.</small></label>
         </div><div class="admin-form-footer"><p>Si no hay video, el sitio muestra el espacio reservado.</p><button class="admin-button admin-button--dark" type="submit">Guardar video <span aria-hidden="true">↗</span></button></div>
+      </form>
+    </section>
+    <section class="admin-section" data-section="appearance" hidden>
+      <form class="admin-settings-form" id="admin-theme-form" data-setting="theme_colors">
+        <div class="admin-form-card">
+          <div class="admin-form-card__heading"><div><h2>Colores y líneas</h2><p>Ajusta la paleta de las páginas del sitio. Puedes ver una muestra antes de guardar.</p></div></div>
+          <div class="admin-palette-preview" data-palette-preview aria-label="Muestra de la paleta">
+            <div><strong>Acento sobre oscuro</strong><span>Texto y línea divisoria</span></div>
+            <div><strong>Acento sobre claro</strong><span>Texto y línea divisoria</span></div>
+          </div>
+          <div class="admin-form-grid admin-palette-fields">
+            {themeFields.map(([key, label, value]) => <label class="admin-field">{label}<span class="admin-swatch"><input type="color" name={key} value={value} /><span data-hex-for={key} aria-hidden="true">{value.toUpperCase()}</span></span></label>)}
+          </div>
+          <div class="admin-form-footer"><button class="admin-button admin-button--outline" type="button" data-reset-theme>Restaurar paleta original</button><button class="admin-button admin-button--dark" type="submit">Guardar colores</button></div>
+        </div>
+      </form>
+      <form class="admin-settings-form" id="admin-home-form" data-setting="home_copy">
+        <div class="admin-form-card">
+          <div class="admin-form-card__heading"><div><h2>Textos del inicio</h2><p>Los titulares conservan su estilo y sus palabras destacadas al editar el texto.</p></div></div>
+          {homeFields.map(({ title, fields }, index) => <details class="admin-copy-group" open={index === 0}>
+            <summary>{title}</summary>
+            {fields.map(([key, label, value, max]) => <label class="admin-field">{label}
+              {max >= 120 ? <textarea name={key} rows={max > 600 ? 5 : 3} maxlength={max} required={Boolean(value) && key !== 'philosophy_highlights'}>{value}</textarea> : <input name={key} value={value} maxlength={max} required={Boolean(value)} />}
+            </label>)}
+          </details>)}
+          <div class="admin-form-footer"><button class="admin-button admin-button--dark" type="submit">Guardar textos</button></div>
+        </div>
       </form>
     </section>
     <section class="admin-section" data-section="settings" hidden>

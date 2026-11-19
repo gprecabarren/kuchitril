@@ -2,16 +2,24 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import { site } from '../config/site';
+import { highlightWords, resolveHome, resolveTheme } from '../config/appearance';
 import { getSiteContent, safeExternalUrl, safeMediaUrl } from '../lib/content';
 const content = await getSiteContent();
 const { settings, works, testimonials } = content;
+const copy = resolveHome(settings.home_copy);
+const colors = resolveTheme(settings.theme_colors);
 const portfolioUrl = safeExternalUrl(settings.portfolio_url) || site.portfolio;
 const videoUrl = safeMediaUrl(settings.video_url);
 const videoPoster = safeMediaUrl(settings.video_poster_url);
 const founderPhoto = safeMediaUrl(settings.founder_photo_url) || '/assets/fundador.webp';
 const videoMime = ['video/mp4', 'video/webm', 'video/ogg'].includes(settings.video_mime) ? settings.video_mime : undefined;
 const safeColor = (value: string, fallback: string) => /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
-const services = ['Marketing digital', 'Desarrollo web', 'Audiovisual', 'Branding'];
+const services = [
+  { title: 'Marketing digital', description: copy.marketing_description },
+  { title: 'Desarrollo web', description: copy.web_description },
+  { title: 'Audiovisual', description: copy.audiovisual_description },
+  { title: 'Branding', description: copy.branding_description },
+];
 const fallbackTeam = [
   { id: '', name: '', role: 'Programación y Desarrollo web.', photo_url: '', photo_alt: '', exclude_name_from_index: true },
   { id: '', name: 'Julián Díaz A.', role: 'Animador multimedia y motiongrapher.', photo_url: '', photo_alt: '', exclude_name_from_index: false },
@@ -29,7 +37,6 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
       <span class="intro__ground" aria-hidden="true"></span>
       <p class="intro__caption">Toda gran idea reclama su lugar.</p>
     </div>
-    <span class="intro__counter" aria-hidden="true">K / 001</span>
   </div>
   <main id="contenido">
     <section class="hero section-shell" aria-labelledby="hero-title">
@@ -37,14 +44,13 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
       <div class="hero__eyebrow"><span class="micro-line"></span> AGENCIA DE PUBLICIDAD <span class="hero__location">Santiago – Concepción</span></div>
       <div class="hero__grid">
         <div class="hero__copy">
-          <h1 id="hero-title"><span class="hero__line">Una buena</span><span class="hero__line hero__line--accent">idea merece</span><span class="hero__line">hacerse ver<span class="hero__period">.</span></span></h1>
+          <h1 id="hero-title"><span class="hero__line">{copy.hero_first}</span>{' '}<span class="hero__line">{copy.hero_second}</span>{' '}<span class="hero__line hero__line--accent">{copy.hero_accent}</span></h1>
         </div>
         <div class="hero__art" aria-hidden="true">
           <div class="hero__art-ring"></div>
           <span class="hero__art-label hero__art-label--top">IDEAS / ACCIÓN / IMPACTO</span>
           <img src="/assets/gato-bandera.webp" alt="" fetchpriority="high" width="520" height="650" />
-          <span class="hero__art-label hero__art-label--bottom">PLANTAMOS IDEAS EN LA MENTE</span>
-          <div class="hero__art-stamp">K<Icon /></div>
+          <span class="hero__art-label hero__art-label--bottom">{copy.hero_slogan}</span>
         </div>
         <div class="hero__bottom">
           {videoUrl ? <div class="hero-video">
@@ -60,30 +66,30 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
           <a class="circle-link" href="#nosotros" aria-label="Conocer al equipo"><Icon kind="down" /></a>
         </div>
       </div>
-      <div class="hero__footer"><span>DESLIZA PARA EXPLORAR</span><span>IDEAS QUE DEJAN HUELLA</span></div>
+      <div class="hero__footer"><span>DESLIZA PARA EXPLORAR</span></div>
     </section>
-    <div class="ticker" aria-hidden="true"><div class="ticker__track">{[0, 1].map(() => <Fragment>CREAMOS <Icon /> MOVEMOS <Icon /> CONECTAMOS <Icon /> </Fragment>)}</div></div>
+    <div class="ticker" aria-hidden="true"><div class="ticker__track">{[0, 1].map(() => <Fragment>CREAMOS <Icon /> {copy.ticker_middle} <Icon /> CONECTAMOS <Icon /> </Fragment>)}</div></div>
     <section class="manifesto section-shell" aria-labelledby="manifesto-title">
-      <div class="section-index"><span>01 / LO QUE CREEMOS</span><span>EL PODER DE HACER SENTIR</span></div>
+      <div class="section-index"><span>{copy.philosophy_label}</span><span>EL PODER DE HACER SENTIR</span></div>
       <div class="manifesto__layout">
         <Icon class="manifesto__asterisk" />
-        <blockquote class="manifesto__quote"><h2 id="manifesto-title">«La gente olvidará lo que dijiste, olvidará lo que hiciste, pero nunca olvidará <em>cómo la hiciste sentir</em>»</h2></blockquote>
-        <p class="manifesto__aside">Volvamos al origen y pongamos el foco en la diferenciación, en la experiencia y en la empatía.</p>
+        <blockquote class="manifesto__quote"><h2 id="manifesto-title">{highlightWords(copy.quote, 'cómo la hiciste sentir').map(({ text, highlighted }) => highlighted ? <em>{text}</em> : text)}</h2></blockquote>
+        <p class="manifesto__aside">{highlightWords(copy.philosophy_text, copy.philosophy_highlights).map(({ text, highlighted }) => highlighted ? <mark>{text}</mark> : text)}</p>
       </div>
     </section>
     <section class="founder section-shell" id="nosotros" aria-labelledby="founder-title">
       <div class="section-index"><span>02 / DETRÁS DE LA IDEA</span><span>PERSONAS ANTES QUE PANTALLAS</span></div>
       <div class="founder__grid">
         <div class="founder__photo-wrap">
-          <div class="founder__photo-frame"><img src={founderPhoto} alt="Diego Padilla Dalia, director creativo" loading="lazy" /></div>
+          <div class="founder__photo-frame"><img src={founderPhoto} srcset={founderPhoto === '/assets/fundador.webp' ? '/assets/fundador-960.webp 960w, /assets/fundador.webp 1920w' : undefined} sizes="(max-width: 900px) 85vw, 42vw" alt="Diego Padilla Dalia, director creativo" loading="lazy" /></div>
           <span class="founder__photo-tag">DIRECTOR CREATIVO</span>
           <Icon class="founder__photo-star" />
           <div class="founder__experience"><strong>10+</strong><span>AÑOS DE EXPERIENCIA</span></div>
         </div>
         <div class="founder__copy">
-          <h2 id="founder-title">Las ideas tienen <em>un rostro.</em></h2>
-          <p>Con más de 10 años de experiencia, <strong>Diego Padilla Dalia</strong> es el publicista fundador de este laboratorio creativo. Ha trabajado con grandes marcas a nivel nacional como Volkswagen, Gobierno de Chile, Tiendas Sparta, Salfa Agrícola, Huawei, Fiat, Tramontina Store y Clínica UC Christus, desarrollando, creando e implementando diferentes campañas publicitarias, tanto para medios convencionales como para redes sociales.</p>
-          <p>Además, es especialista en redacción, tiene un diplomado en escritura de guión cinematográfico, se desempeñó durante tres años como académico en la Universidad Santo Tomás en la Carrera de Comunicación Audiovisual y ha sido invitado en varias ocasiones a dar charlas de narrativas, procesos creativos y comunicación estratégica en diferentes institutos y universidades.</p>
+          <h2 id="founder-title">{copy.founder_title}{' '}<em>{copy.founder_accent}</em></h2>
+          <p>{copy.founder_bio}</p>
+          <p>{copy.founder_profession}</p>
           <ul class="founder__credits">
             <li>Director del cortometraje “El Dilema”.</li>
             <li>Director del documental “Campus Naturaleza” de la Universidad de Concepción.</li>
@@ -92,20 +98,20 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
         </div>
       </div>
       {team.length > 0 && <div class="team" aria-labelledby="team-title">
-        <div class="team__heading"><span class="eyebrow">DISTINTAS MIRADAS, UNA MISMA IDEA</span><h3 id="team-title">El equipo.</h3></div>
+        <div class="team__heading"><h3 id="team-title">{copy.team_title}</h3><span class="eyebrow">{copy.team_subtitle}</span></div>
         <div class:list={['team__grid', { 'team__grid--scroll': team.length > 3 }]} tabindex={team.length > 3 ? '0' : undefined} role="list" aria-label="Integrantes del equipo">{team.map((person) => <article class="team-card" role="listitem">
           <div class:list={['team-card__portrait', { 'team-card__portrait--photo': safeMediaUrl(person.photo_url) }]}>
             {safeMediaUrl(person.photo_url) ? <img src={safeMediaUrl(person.photo_url)} alt={person.exclude_name_from_index ? 'Integrante del equipo' : person.photo_alt || person.name} loading="lazy" width="104" height="104" /> : <Icon kind="portrait" />}
           </div>
-          {person.exclude_name_from_index ? <iframe class="team-card__name" src={`/equipo/desarrollo/${person.id ? `?member=${encodeURIComponent(person.id)}` : ''}`} title="Integrante del equipo" loading="lazy"></iframe> : <h4>{person.name}</h4>}<p>{person.role}</p>
+          {person.exclude_name_from_index ? <iframe class="team-card__name" src={`/equipo/desarrollo/?${new URLSearchParams({ ...(person.id && { member: person.id }), color: colors.cream })}`} title="Integrante del equipo" loading="lazy"></iframe> : <h4>{person.name}</h4>}<p>{person.role}</p>
         </article>)}</div>
         {team.length > 3 && <p class="team__hint">Desliza para conocer a todo el equipo.</p>}
       </div>}
     </section>
     <section class="services section-shell" id="servicios" aria-labelledby="services-title">
-      <div class="section-index"><span>03 / QUÉ HACEMOS</span><span>CUATRO FORMAS DE MOVER TU MARCA</span></div>
-      <div class="services__heading"><h2 id="services-title">Ideas en<br /><em>todas sus formas.</em></h2><p>Una misma intención: hacer que tu marca encuentre su lugar y se quede en la memoria.</p></div>
-      <div class="services__list">{services.map((service, index) => <article class="service-row"><span class="service-row__num">0{index + 1}</span><div><h3>{service}</h3><p class="service-row__pending">Descripción del servicio</p></div><Icon kind="arrow" class="service-row__icon" /></article>)}</div>
+      <div class="section-index"><span>03 / QUÉ HACEMOS</span><span>{copy.services_label}</span></div>
+      <div class="services__heading"><h2 id="services-title">{copy.services_start} <em>{copy.services_accent}</em> {copy.services_middle} <em>{copy.services_end}</em>.</h2></div>
+      <div class="services__list">{services.map(({ title, description }, index) => <article class="service-row"><span class="service-row__num">0{index + 1}</span><div><h3>{title}</h3>{description && <p>{description}</p>}</div><Icon kind="arrow" class="service-row__icon" /></article>)}</div>
     </section>
     <section class="portfolio-preview section-shell" id="portafolio" aria-labelledby="portfolio-title">
       <div class="section-index"><span>04 / TRABAJO EN MOVIMIENTO</span><span>PORTAFOLIO</span></div>
@@ -129,8 +135,8 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
     </section>
     <section class="contact section-shell" id="contacto" aria-labelledby="contact-title">
       <Icon class="contact__orb" /><span class="eyebrow">TU IDEA TIENE UN LUGAR AQUÍ</span>
-      <h2 id="contact-title">¿Plantamos<br /><em>la próxima?</em></h2>
-      <div class="contact__bottom"><p>Cuéntanos qué tienes en mente. Construyamos algo que valga la pena mirar.</p><a class="contact__button" href={site.whatsapp} data-contact="whatsapp" target="_blank" rel="noopener noreferrer">Hablemos por WhatsApp <Icon kind="arrow" /></a></div>
+      <h2 id="contact-title">{copy.contact_title}</h2>
+      <div class="contact__bottom"><a class="contact__button" href={site.whatsapp} data-contact="whatsapp" target="_blank" rel="noopener noreferrer">Hablemos por WhatsApp <Icon kind="arrow" /></a></div>
     </section>
   </main>
 </BaseLayout>

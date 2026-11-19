@@ -1,14 +1,15 @@
 import { Upload } from 'tus-js-client';
+import { contrastRatio, defaultTheme, resolveHome, resolveTheme, themeFields, type HomeCopy, type ThemeColors } from '../config/appearance';
 
 type Kind = 'works' | 'team' | 'testimonials';
-type Tab = Kind | 'overview' | 'video' | 'settings';
+type Tab = Kind | 'overview' | 'video' | 'appearance' | 'settings';
 type Content = Record<string, unknown> & { id: string; published: boolean; deleted_at?: string | null; sort_order: number };
 type Settings = Record<string, unknown>;
 type UploadTicket = { id: string; signedUrl: string; path: string; token: string; bucket: string; tusEndpoint: string; apikey: string };
 const app = document.querySelector<HTMLElement>('#admin-app');
 
 if (app) {
-  const labels: Record<Tab, string> = { overview: 'Vista general', works: 'Trabajos', team: 'Equipo', testimonials: 'Testimonios', video: 'Video', settings: 'SEO y redes' };
+  const labels: Record<Tab, string> = { overview: 'Vista general', works: 'Trabajos', team: 'Equipo', testimonials: 'Testimonios', video: 'Video', appearance: 'Inicio y apariencia', settings: 'SEO y redes' };
   const nouns: Record<Kind, string> = { works: 'trabajo', team: 'integrante', testimonials: 'testimonio' };
   const emptyText: Record<Kind, string> = { works: 'Agrega fotografías y cuenta qué hiciste para cada marca.', team: 'Agrega a las personas del equipo y su especialidad.', testimonials: 'Agrega las palabras de tus clientes cuando tengas su autorización.' };
   const store: Record<Kind, Content[]> = { works: [], team: [], testimonials: [] };
@@ -22,6 +23,8 @@ if (app) {
   const status = document.querySelector<HTMLElement>('#admin-status')!;
   const editor = document.querySelector<HTMLDialogElement>('#admin-editor')!;
   const contentForm = document.querySelector<HTMLFormElement>('#admin-content-form')!;
+  const settingsForms = document.querySelectorAll<HTMLFormElement>('.admin-settings-form');
+  const themeForm = document.querySelector<HTMLFormElement>('#admin-theme-form')!;
   const cropDialog = document.querySelector<HTMLDialogElement>('#admin-cropper')!;
   const confirmDialog = document.querySelector<HTMLDialogElement>('#admin-confirm')!;
   let confirmResolve: ((confirmed: boolean) => void) | null = null;
@@ -158,11 +161,13 @@ if (app) {
     return result;
   }
   function populateSettings() {
-    for (const selector of ['#admin-video-form', '#admin-seo-form']) {
-      const form = document.querySelector<HTMLFormElement>(selector)!;
+    for (const form of settingsForms) {
+      const fields = form.dataset.setting === 'theme_colors' ? resolveTheme(settings.theme_colors as Partial<ThemeColors>)
+        : form.dataset.setting === 'home_copy' ? resolveHome(settings.home_copy as Partial<HomeCopy>) : settings;
       form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[name],textarea[name]').forEach((field) => {
-        if (field instanceof HTMLInputElement && field.type === 'checkbox') field.checked = Boolean(settings[field.name]);
-        else field.value = String(settings[field.name] ?? '');
+        const saved = (fields as Settings)[field.name];
+        if (field instanceof HTMLInputElement && field.type === 'checkbox') field.checked = Boolean(saved);
+        else field.value = String(saved ?? '');
       });
       form.querySelectorAll<HTMLElement>('[data-media-field]').forEach((field) => {
         const hidden = field.querySelector<HTMLInputElement>('input[type=hidden]');
@@ -173,6 +178,15 @@ if (app) {
       });
     }
     updateSeoPreview();
+    updatePalettePreview();
+  }
+  function updatePalettePreview() {
+    const preview = themeForm.querySelector<HTMLElement>('[data-palette-preview]')!;
+    const colors = resolveTheme(Object.fromEntries(new FormData(themeForm)));
+    for (const [key] of themeFields) {
+      preview.style.setProperty(`--preview-${key.replaceAll('_', '-')}`, colors[key]);
+      themeForm.querySelector(`[data-hex-for="${key}"]`)!.textContent = colors[key].toUpperCase();
+    }
   }
   function updateSeoPreview() {
     const form = document.querySelector<HTMLFormElement>('#admin-seo-form')!;
@@ -226,7 +240,7 @@ if (app) {
     if (uploads || !contentForm.reportValidity()) return;
     toggleSubmitting(contentForm, true);
     const payload = formData(contentForm);
-    if (editorKind === 'testimonials' && contrast(String(payload.background_color), String(payload.text_color)) < 4.5) { message('Estos colores tienen poco contraste. Elige texto más claro u oscuro para que el testimonio se lea bien.', 'error'); toggleSubmitting(contentForm, false); return; }
+    if (editorKind === 'testimonials' && contrastRatio(String(payload.background_color), String(payload.text_color)) < 4.5) { message('Estos colores tienen poco contraste. Elige texto más claro u oscuro para que el testimonio se lea bien.', 'error'); toggleSubmitting(contentForm, false); return; }
     try {
       await api(`content/${editorKind}${editorId ? `/${encodeURIComponent(editorId)}` : ''}`, editorId ? 'PATCH' : 'POST', payload);
       store[editorKind] = await api<Content[]>(`content/${editorKind}`);
@@ -236,15 +250,29 @@ if (app) {
     } catch (error) { message(error instanceof Error ? error.message : 'No pudimos guardar el contenido.', 'error'); }
     finally { toggleSubmitting(contentForm, false); }
   });
-  for (const selector of ['#admin-video-form', '#admin-seo-form']) {
-    const form = document.querySelector<HTMLFormElement>(selector)!;
-    form.addEventListener('input', () => { dirtySettings.add(form); if (selector === '#admin-seo-form') updateSeoPreview(); });
+  themeForm.querySelector('[data-reset-theme]')!.addEventListener('click', () => {
+    for (const [key] of themeFields) themeForm.querySelector<HTMLInputElement>(`[name="${key}"]`)!.value = defaultTheme[key];
+    dirtySettings.add(themeForm);
+    updatePalettePreview();
+    message('Vista previa de la paleta original. Guarda los colores para aplicarla.');
+  });
+  for (const form of settingsForms) {
+    form.addEventListener('invalid', (event) => {
+      const group = (event.target as HTMLElement).closest('details');
+      if (group) group.open = true;
+    }, true);
+    form.addEventListener('input', () => {
+      dirtySettings.add(form);
+      if (form.id === 'admin-seo-form') updateSeoPreview();
+      if (form === themeForm) updatePalettePreview();
+    });
     form.addEventListener('submit', async (event) => {
       event.preventDefault(); if (uploads || !form.reportValidity()) return;
-      const payload = formData(form);
+      const data = formData(form);
+      const payload = form.dataset.setting ? { [form.dataset.setting]: data } : data;
       if (payload.instagram_url && !/^https:\/\/(www\.)?instagram\.com\//i.test(String(payload.instagram_url))) { message('Usa el enlace completo de tu perfil: https://www.instagram.com/tu_agencia/', 'error'); return; }
       toggleSubmitting(form, true);
-      try { await api('content/settings/1', 'PATCH', payload); settings = { ...settings, ...payload }; dirtySettings.delete(form); message('Cambios guardados. Ya puedes revisarlos en el sitio.'); }
+      try { settings = await api<Settings>('content/settings/1', 'PATCH', payload); dirtySettings.delete(form); message('Cambios guardados. Ya puedes revisarlos en el sitio.'); }
       catch (error) { message(error instanceof Error ? error.message : 'No pudimos guardar la configuración.', 'error'); }
       finally { toggleSubmitting(form, false); }
     });
@@ -387,18 +415,8 @@ if (app) {
       cropDialog.close(); cropResolve?.(new File([blob], `${cropFilename}.${extension}`, { type: blob.type })); cropResolve = null; cropImage = null;
     }, 'image/webp', 0.9);
   });
-  function contrast(first: string, second: string) {
-    const luminance = (hex: string) => {
-      if (!/^#[0-9a-f]{6}$/i.test(hex)) return 0;
-      const rgb = [1, 3, 5].map((index) => parseInt(hex.slice(index, index + 2), 16) / 255).map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
-      return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
-    };
-    const a = luminance(first), b = luminance(second);
-    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-  }
   window.addEventListener('beforeunload', (event) => { if (uploads || editorDirty || dirtySettings.size > 0) event.preventDefault(); });
   async function load() {
-    const settingsForms = document.querySelectorAll<HTMLFormElement>('.admin-settings-form');
     settingsForms.forEach((form) => form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>('input,textarea,button').forEach((field) => { field.disabled = true; }));
     const results = await Promise.allSettled([api<Content[]>('content/works'), api<Content[]>('content/team'), api<Content[]>('content/testimonials'), api<Settings>('content/settings')]);
     const kinds: Kind[] = ['works', 'team', 'testimonials'];

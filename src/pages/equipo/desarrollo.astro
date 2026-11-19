@@ -1,10 +1,13 @@
 ---
 import '@fontsource-variable/dm-sans';
 import { getTeamMemberName } from '../../lib/content';
+import { defaultTheme, isHexColor } from '../../config/appearance';
 Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow, nosnippet');
 Astro.response.headers.set('Cache-Control', 'private, no-store');
 const memberId = Astro.url.searchParams.get('member');
 const memberName = await getTeamMemberName(memberId || undefined);
+const colorParam = Astro.url.searchParams.get('color');
+const color = isHexColor(colorParam) ? colorParam : defaultTheme.cream;
 ---
 <!doctype html>
 <html lang="es-CL">
@@ -14,7 +17,7 @@ const memberName = await getTeamMemberName(memberId || undefined);
     <meta name="robots" content="noindex, nofollow, nosnippet" />
     <title>Integrante del equipo</title>
   </head>
-  <body><h4>{memberName}</h4></body>
+  <body style={`color:${color}`}><h4>{memberName}</h4></body>
 </html>
 <style>
   :global(html), :global(body){margin:0;padding:0;background:transparent;color:#f7efdf;font-family:'DM Sans Variable',Arial,sans-serif;font-synthesis:none}

@@ -82,6 +82,12 @@ Por defecto, el video se reproduce cuando el visitante pulsa reproducir. La opci
 
 Después de guardar, prueba imagen, sonido y controles en un computador y un celular. En móvil, el video aparece debajo del gato. Si no hay video, se muestra **Insertar el video**.
 
+## Inicio y apariencia
+
+En **Textos del inicio** puedes editar el titular de portada, la cita y el texto de filosofía, la biografía de Diego, los encabezados del equipo y los servicios, las descripciones de los cuatro servicios y el titular de contacto. Separa con comas las palabras que quieras resaltar en filosofía. Usa **Guardar textos** para publicarlos.
+
+En **Colores y líneas** puedes ajustar fondos, textos, acentos, la franja y las divisiones sobre fondos claros y oscuros. La muestra cambia a medida que eliges los colores. Usa **Guardar colores** cuando estés conforme. El panel comprueba el contraste de los textos principales. **Restaurar paleta original** carga los valores de marca en la muestra para que puedas guardarlos.
+
 ## SEO, Instagram y portafolio
 
 En **SEO y redes** puedes modificar:

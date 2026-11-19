@@ -1,9 +1,10 @@
+import type { HomeCopy, ThemeColors } from '../config/appearance';
+
 export interface AuditFields {
   created_at: string;
   updated_at: string;
   updated_by: string | null;
 }
-
 export interface CollectionFields extends AuditFields {
   id: string;
   published: boolean;
@@ -51,6 +52,8 @@ export interface SiteSettings extends AuditFields {
   video_mime: '' | 'video/mp4' | 'video/webm';
   video_autoplay: boolean;
   founder_photo_url: string;
+  home_copy?: Partial<HomeCopy>;
+  theme_colors?: Partial<ThemeColors>;
 }
 
 export interface CmsMedia {

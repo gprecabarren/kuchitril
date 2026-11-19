@@ -199,6 +199,25 @@ try {
     assert.equal(db.events.length, 0);
   });
 
+  await check('homepage copy and palette persist separately with strict fields and readable colors', async () => {
+    const row = { id: 1, home_title: 'Kuchitril', home_description: 'Agencia de publicidad', og_image_url: '', founder_photo_url: '', instagram_url: '', portfolio_url: 'https://www.behance.net/pesadilla', video_url: '', video_poster_url: '', video_mime: '', video_autoplay: false, home_copy: {}, theme_colors: {} };
+    const db = fixtureDatabase({ site_settings: [row] });
+    globalThis[Symbol.for('kuchitril-test-db')] = db;
+    const save = (body) => {
+      const context = protectedContext('/api/admin/content/settings/1', body);
+      context.params = { kind: 'settings', id: '1' };
+      return securedPatch.PATCH(context);
+    };
+    assert.equal((await save({ home_copy: { hero_first: 'Creatividad aplicada' } })).status, 200);
+    assert.equal((await save({ theme_colors: { line_dark: '#61958b' } })).status, 200);
+    assert.equal((await save({ theme_colors: { dark: '#f7efdf' } })).status, 400);
+    assert.equal((await save({ theme_colors: { mint: 'url(example)' } })).status, 400);
+    assert.equal((await save({ home_copy: { unexpected: 'desconocido' } })).status, 400);
+    assert.deepEqual(db.rows.site_settings[0].home_copy, { hero_first: 'Creatividad aplicada' });
+    assert.deepEqual(db.rows.site_settings[0].theme_colors, { line_dark: '#61958b' });
+    assert.equal(db.events.length, 2);
+  });
+
   await check('an administrator cannot finalize another administrator’s staged file', async () => {
     const row = { id: fixtureUser.id, created_by: 'other-administrator', status: 'pending' };
     const db = fixtureDatabase({ cms_media: [row] });
