@@ -68,7 +68,7 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
       </div>
       <div class="hero__footer"><span>DESLIZA PARA EXPLORAR</span></div>
     </section>
-    <div class="ticker" aria-hidden="true"><div class="ticker__track">{[0, 1].map(() => <Fragment>CREAMOS <Icon /> {copy.ticker_middle} <Icon /> CONECTAMOS <Icon /> </Fragment>)}</div></div>
+    <div class="ticker" aria-hidden="true"><div class="ticker__track">{[0, 1].map(() => <div class="ticker__group">CREAMOS <Icon /> {copy.ticker_middle} <Icon /> CONECTAMOS <Icon /> </div>)}</div></div>
     <section class="manifesto section-shell" aria-labelledby="manifesto-title">
       <div class="section-index"><span>{copy.philosophy_label}</span><span>EL PODER DE HACER SENTIR</span></div>
       <div class="manifesto__layout">
