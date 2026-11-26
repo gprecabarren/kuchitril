@@ -126,11 +126,14 @@ const voices = testimonials.length ? testimonials : [1, 2, 3].map((number) => ({
       <div class="section-index"><span>05 / VOCES QUE IMPORTAN</span><span>EXPERIENCIAS COMPARTIDAS</span></div>
       <div class="voices__heading"><h2 id="voices-title">Lo mejor lo cuentan <em>quienes estuvieron ahí.</em></h2><p>Las experiencias de quienes han compartido este camino.</p></div>
       <div class="voices__carousel" data-voices-carousel>
-        <div class="voices__viewport" tabindex="0" role="region" aria-label="Testimonios de clientes. Desliza para recorrerlos."><div class="voices__track">{[false, true].map((duplicate) => <div class="voices__group" aria-hidden={duplicate ? 'true' : undefined} inert={duplicate ? true : undefined}>{voices.map((voice, index) => <article class="voice-card" style={`--voice-background:${safeColor(voice.background_color, '#0c3837')};--voice-color:${safeColor(voice.text_color, '#f7efdf')}`}>
+        <div class="voices__viewport" id="voices-viewport" tabindex="0" role="region" aria-labelledby="voices-title"><div class="voices__track">{voices.map((voice, index) => <article class="voice-card" style={`--voice-background:${safeColor(voice.background_color, '#0c3837')};--voice-color:${safeColor(voice.text_color, '#f7efdf')}`}>
           <span class="voice-card__number">TESTIMONIO / {String(index + 1).padStart(2, '0')}</span><span class="voice-card__quote" aria-hidden="true">“</span><p>{voice.quote}</p>
-          <div class="voice-card__author">{safeMediaUrl(voice.photo_url) && <img src={safeMediaUrl(voice.photo_url)} alt="" loading="lazy" width="56" height="56" />}<div>{voice.name && <strong>{voice.name}</strong>}<span class="voice-card__meta">{voice.company}</span></div></div>
-        </article>)}</div>)}</div></div>
-        <div class="voices__controls"><span>Historias que nos mueven.</span><div><button type="button" data-voices-prev aria-label="Testimonio anterior"><Icon kind="down" /></button><button type="button" class="voices__pause" data-voices-pause aria-pressed="false">Pausar movimiento</button><button type="button" data-voices-next aria-label="Siguiente testimonio"><Icon kind="down" /></button></div></div>
+          <div class="voice-card__author">{safeMediaUrl(voice.photo_url) && <img src={safeMediaUrl(voice.photo_url)} alt="" loading="lazy" width="56" height="56" draggable="false" />}<div>{voice.name && <strong>{voice.name}</strong>}<span class="voice-card__meta">{voice.company}</span></div></div>
+        </article>)}</div></div>
+        <div class="voices__controls" hidden>
+          <button type="button" data-voices-prev aria-label="Testimonio anterior" aria-controls="voices-viewport"><Icon kind="down" /></button>
+          <button type="button" data-voices-next aria-label="Siguiente testimonio" aria-controls="voices-viewport"><Icon kind="down" /></button>
+        </div>
       </div>
     </section>
     <section class="contact section-shell" id="contacto" aria-labelledby="contact-title">
